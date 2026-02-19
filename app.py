@@ -9,20 +9,16 @@ Any OpenAI-compatible API works (DeepSeek, OpenAI, Ollama, etc).
 
 import json
 import os
-
 import httpx
 from flask import Flask, jsonify, request, send_from_directory
+
+import settings
+
 
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
 
-AI_BASE_URL = os.getenv("AI_BASE_URL", "https://api.deepseek.com/v1")
-AI_API_KEY = "sk-264e67c110bf4b5dba6161203bcf6d0c"  # os.getenv("AI_API_KEY", "")
-AI_MODEL = os.getenv("AI_MODEL", "deepseek-chat")
-MCP_URL = os.getenv("MCP_URL", "http://127.0.0.1:8063/")
-WEBCHAT_HOST = os.getenv("WEBCHAT_HOST", "127.0.0.1")
-WEBCHAT_PORT = int(os.getenv("WEBCHAT_PORT", "8064"))
 
 # Maximum tool-call rounds to prevent infinite loops
 MAX_TOOL_ROUNDS = 10
@@ -69,7 +65,7 @@ def mcp_initialize():
     """Perform MCP initialize handshake and store session ID."""
     global _mcp_session_id
     resp = httpx.post(
-        MCP_URL,
+        settings.MCP_URL,
         json={
             "jsonrpc": "2.0",
             "id": 0,
@@ -91,7 +87,7 @@ def mcp_initialize():
 
     # Send initialized notification
     httpx.post(
-        MCP_URL,
+        settings.MCP_URL,
         json={"jsonrpc": "2.0", "method": "notifications/initialized"},
         headers=_mcp_headers(),
         timeout=10,
@@ -107,7 +103,7 @@ def mcp_list_tools():
         mcp_initialize()
 
     resp = httpx.post(
-        MCP_URL,
+        settings.MCP_URL,
         json={"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}},
         headers=_mcp_headers(),
         timeout=30,
@@ -119,7 +115,7 @@ def mcp_list_tools():
 def mcp_call_tool(name, arguments):
     """Call a tool on the MCP server and return its result."""
     resp = httpx.post(
-        MCP_URL,
+        settings.MCP_URL,
         json={
             "jsonrpc": "2.0",
             "id": 2,
@@ -166,7 +162,7 @@ def mcp_tools_to_openai_format(mcp_tools):
 def ai_chat_completion(messages, tools=None):
     """Send a chat completion request to the AI provider."""
     payload = {
-        "model": AI_MODEL,
+        "model": settings.AI_MODEL,
         "messages": messages,
     }
     if tools:
@@ -174,11 +170,11 @@ def ai_chat_completion(messages, tools=None):
         payload["tool_choice"] = "auto"
 
     resp = httpx.post(
-        f"{AI_BASE_URL}/chat/completions",
+        f"{settings.AI_BASE_URL}/chat/completions",
         json=payload,
         headers={
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {AI_API_KEY}",
+            "Authorization": f"Bearer {settings.AI_API_KEY}",
         },
         timeout=120,
     )
@@ -206,8 +202,8 @@ def chat():
     if not messages:
         return jsonify({"error": "No messages provided"}), 400
 
-    if not AI_API_KEY:
-        return jsonify({"error": "AI_API_KEY not configured"}), 500
+    if not settings.AI_API_KEY:
+        return jsonify({"error": "settings.AI_API_KEY not configured"}), 500
 
     # Fetch available MCP tools
     try:
@@ -219,7 +215,7 @@ def chat():
 
     openai_tools = mcp_tools_to_openai_format(mcp_tools) if mcp_tools else None
     if openai_tools:
-        print(f"[AI] Sending {len(openai_tools)} tools to {AI_MODEL}")
+        print(f"[AI] Sending {len(openai_tools)} tools to {settings.AI_MODEL}")
 
     # Build system prompt telling the AI to use its tools
     tool_names = [t["name"] for t in mcp_tools] if mcp_tools else []
@@ -249,7 +245,7 @@ def chat():
         # If no tool calls, we're done
         tool_calls = message.get("tool_calls")
         if not tool_calls:
-            print(f"[AI] Final response (no tool calls)")
+            print("[AI] Final response (no tool calls)")
             return jsonify({"reply": message.get("content", "")})
 
         # Append assistant message with tool calls
@@ -286,7 +282,7 @@ def chat():
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    print(f"Webchat starting on http://{WEBCHAT_HOST}:{WEBCHAT_PORT}")
-    print(f"AI provider: {AI_BASE_URL} (model: {AI_MODEL})")
-    print(f"MCP server:  {MCP_URL}")
-    app.run(host=WEBCHAT_HOST, port=WEBCHAT_PORT)
+    print(f"Webchat starting on http://{settings.WEBCHAT_HOST}:{settings.WEBCHAT_PORT}")
+    print(f"AI provider: {settings.AI_BASE_URL} (model: {settings.AI_MODEL})")
+    print(f"MCP server:  {settings.MCP_URL}")
+    app.run(host=settings.WEBCHAT_HOST, port=settings.WEBCHAT_PORT)
