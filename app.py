@@ -9,38 +9,11 @@ Any OpenAI-compatible API works (DeepSeek, OpenAI, Ollama, etc).
 
 import json
 import os
-from datetime import datetime
 import httpx
 from flask import Flask, jsonify, request, send_from_directory
 
 import settings
-
-# ---------------------------------------------------------------------------
-# Debug logger - saves full request/response data to debug/ folder
-# Enable with DEBUG=true in settings or environment
-# ---------------------------------------------------------------------------
-
-_debug_counter = 0
-
-
-def _debug_log(label, request_data, response_data):
-    """Save a request/response pair as a JSON file in debug/ folder."""
-    if not settings.DEBUG:
-        return
-    global _debug_counter
-    _debug_counter += 1
-    debug_dir = os.path.join(os.path.dirname(__file__), "debug")
-    os.makedirs(debug_dir, exist_ok=True)
-
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"{timestamp}_{_debug_counter:03d}_{label}.json"
-    filepath = os.path.join(debug_dir, filename)
-
-    data = {"label": label, "timestamp": timestamp, **request_data, **response_data}
-
-    with open(filepath, "w") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False, default=str)
-    print(f"[DEBUG] Saved {filepath}")
+from utils.debug import logger
 
 
 # ---------------------------------------------------------------------------
@@ -119,21 +92,21 @@ def mcp_initialize():
     session_id = resp.headers.get("mcp-session-id")
     if session_id:
         _mcp_session_id = session_id
-        print(f"[MCP] Session initialized: {_mcp_session_id}")
+        logger.info(f"MCP session initialized: {_mcp_session_id}")
 
     parsed = _parse_mcp_response(resp)
-    _debug_log("mcp_initialize", {
+    logger.debug({
+        "label": "mcp_initialize",
         "request": {"url": settings.MCP_URL, "headers": req_headers, "body": req_body},
-    }, {
         "response": {"status": resp.status_code, "headers": dict(resp.headers), "body": parsed},
     })
 
     # Send initialized notification
     notif_body = {"jsonrpc": "2.0", "method": "notifications/initialized"}
     resp2 = httpx.post(settings.MCP_URL, json=notif_body, headers=_mcp_headers(), timeout=10)
-    _debug_log("mcp_initialized_notification", {
+    logger.debug({
+        "label": "mcp_initialized_notification",
         "request": {"url": settings.MCP_URL, "headers": _mcp_headers(), "body": notif_body},
-    }, {
         "response": {"status": resp2.status_code, "headers": dict(resp2.headers), "body": resp2.text},
     })
 
@@ -152,9 +125,9 @@ def mcp_list_tools():
     resp = httpx.post(settings.MCP_URL, json=req_body, headers=req_headers, timeout=30)
     data = _parse_mcp_response(resp)
 
-    _debug_log("mcp_list_tools", {
+    logger.debug({
+        "label": "mcp_list_tools",
         "request": {"url": settings.MCP_URL, "headers": req_headers, "body": req_body},
-    }, {
         "response": {"status": resp.status_code, "headers": dict(resp.headers), "body": data},
     })
 
@@ -173,9 +146,9 @@ def mcp_call_tool(name, arguments):
     resp = httpx.post(settings.MCP_URL, json=req_body, headers=req_headers, timeout=60)
     data = _parse_mcp_response(resp)
 
-    _debug_log(f"mcp_call_tool_{name}", {
+    logger.debug({
+        "label": f"mcp_call_tool_{name}",
         "request": {"url": settings.MCP_URL, "headers": req_headers, "body": req_body},
-    }, {
         "response": {"status": resp.status_code, "headers": dict(resp.headers), "body": data},
     })
 
@@ -239,9 +212,9 @@ def ai_chat_completion(messages, tools=None):
     resp.raise_for_status()
     data = resp.json()
 
-    _debug_log("ai_chat_completion", {
+    logger.debug({
+        "label": "ai_chat_completion",
         "request": {"url": url, "headers": req_headers, "body": payload},
-    }, {
         "response": {"status": resp.status_code, "headers": dict(resp.headers), "body": data},
     })
 
@@ -274,14 +247,14 @@ def chat():
     # Fetch available MCP tools
     try:
         mcp_tools = mcp_list_tools()
-        print(f"[MCP] Found {len(mcp_tools)} tools: {[t['name'] for t in mcp_tools]}")
+        logger.info(f"MCP found {len(mcp_tools)} tools: {[t['name'] for t in mcp_tools]}")
     except Exception as e:
-        print(f"[MCP] ERROR connecting to MCP server: {e}")
+        logger.error(f"MCP connection error: {e}")
         mcp_tools = []
 
     openai_tools = mcp_tools_to_openai_format(mcp_tools) if mcp_tools else None
     if openai_tools:
-        print(f"[AI] Sending {len(openai_tools)} tools to {settings.AI_MODEL}")
+        logger.info(f"Sending {len(openai_tools)} tools to {settings.AI_MODEL}")
 
     # Build system prompt telling the AI to use its tools
     tool_names = [t["name"] for t in mcp_tools] if mcp_tools else []
@@ -311,11 +284,11 @@ def chat():
         # If no tool calls, we're done
         tool_calls = message.get("tool_calls")
         if not tool_calls:
-            print("[AI] Final response (no tool calls)")
+            logger.info("AI final response (no tool calls)")
             return jsonify({"reply": message.get("content", "")})
 
         # Append assistant message with tool calls
-        print(f"[AI] Tool calls requested: {[tc['function']['name'] for tc in tool_calls]}")
+        logger.info(f"AI tool calls requested: {[tc['function']['name'] for tc in tool_calls]}")
         messages.append(message)
 
         # Execute each tool call via MCP
@@ -348,7 +321,7 @@ def chat():
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    print(f"Webchat starting on http://{settings.WEBCHAT_HOST}:{settings.WEBCHAT_PORT}")
-    print(f"AI provider: {settings.AI_BASE_URL} (model: {settings.AI_MODEL})")
-    print(f"MCP server:  {settings.MCP_URL}")
+    logger.info(f"Webchat starting on http://{settings.WEBCHAT_HOST}:{settings.WEBCHAT_PORT}")
+    logger.info(f"AI provider: {settings.AI_BASE_URL} (model: {settings.AI_MODEL})")
+    logger.info(f"MCP server: {settings.MCP_URL}")
     app.run(host=settings.WEBCHAT_HOST, port=settings.WEBCHAT_PORT)
