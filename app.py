@@ -221,6 +221,21 @@ def chat():
     if openai_tools:
         print(f"[AI] Sending {len(openai_tools)} tools to {AI_MODEL}")
 
+    # Build system prompt telling the AI to use its tools
+    tool_names = [t["name"] for t in mcp_tools] if mcp_tools else []
+    system_msg = {
+        "role": "system",
+        "content": (
+            "You are a specialized assistant that ONLY answers questions using the available tools. "
+            "You MUST call at least one tool for every user question. "
+            "Available tools: " + ", ".join(tool_names) + ". "
+            "If none of the tools can answer the question, respond EXACTLY with: "
+            "\"No estamos listos para responder tu pregunta, solo respondemos consultas sobre el BCIE.\"\n"
+            "NEVER answer from your own knowledge. ONLY use tool results."
+        ),
+    }
+    messages = [system_msg] + messages
+
     # Tool-calling loop
     for _ in range(MAX_TOOL_ROUNDS):
         try:
