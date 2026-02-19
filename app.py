@@ -136,6 +136,7 @@ def mcp_list_tools():
 
 def mcp_call_tool(name, arguments):
     """Call a tool on the MCP server and return its result."""
+    logger.info(f"MCP tool call: {name}({arguments})")
     req_body = {
         "jsonrpc": "2.0",
         "id": 2,
