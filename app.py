@@ -9,10 +9,38 @@ Any OpenAI-compatible API works (DeepSeek, OpenAI, Ollama, etc).
 
 import json
 import os
+from datetime import datetime
 import httpx
 from flask import Flask, jsonify, request, send_from_directory
 
 import settings
+
+# ---------------------------------------------------------------------------
+# Debug logger - saves full request/response data to debug/ folder
+# Enable with DEBUG=true in settings or environment
+# ---------------------------------------------------------------------------
+
+_debug_counter = 0
+
+
+def _debug_log(label, request_data, response_data):
+    """Save a request/response pair as a JSON file in debug/ folder."""
+    if not settings.DEBUG:
+        return
+    global _debug_counter
+    _debug_counter += 1
+    debug_dir = os.path.join(os.path.dirname(__file__), "debug")
+    os.makedirs(debug_dir, exist_ok=True)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{timestamp}_{_debug_counter:03d}_{label}.json"
+    filepath = os.path.join(debug_dir, filename)
+
+    data = {"label": label, "timestamp": timestamp, **request_data, **response_data}
+
+    with open(filepath, "w") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False, default=str)
+    print(f"[DEBUG] Saved {filepath}")
 
 
 # ---------------------------------------------------------------------------
@@ -45,7 +73,9 @@ def _mcp_headers():
 
 
 def _parse_mcp_response(resp):
-    """Parse an MCP response, handling both JSON and SSE formats."""
+    """Parse an MCP response, handling both JSON and SSE* formats.
+       * Server-sent events https://en.wikipedia.org/wiki/Server-sent_events
+    """
     content_type = resp.headers.get("content-type", "")
     if "text/event-stream" in content_type:
         # Parse SSE: find the last "data:" line with JSON
@@ -64,35 +94,50 @@ def _parse_mcp_response(resp):
 def mcp_initialize():
     """Perform MCP initialize handshake and store session ID."""
     global _mcp_session_id
-    resp = httpx.post(
-        settings.MCP_URL,
-        json={
-            "jsonrpc": "2.0",
-            "id": 0,
-            "method": "initialize",
-            "params": {
-                "protocolVersion": "2025-03-26",
-                "capabilities": {},
-                "clientInfo": {"name": "webchat", "version": "1.0"},
-            },
+    req_body = {
+        "jsonrpc": "2.0",
+        "id": 0,
+        "method": "initialize",
+        "params": {
+            "protocolVersion": "2025-03-26",
+            # capabilities:
+            # - "roots": client can provide file system roots
+            # - "sampling": client can handle LLM sampling requests from the server
+            #   It's when the MCP server asks the client to call an LLM on its behalf. The reverse of the normal flow.
+            #   Use case example: an MCP tool that generates a summary. Instead of doing it itself, the server says
+            #   "send this text to your AI model and return what it says." This way the server
+            #   doesn't need its own AI API key — it borrows the client's.
+
+            "capabilities": {},
+            "clientInfo": {"name": "OKFN MCP gateway", "version": "0.1"},
         },
-        headers=_mcp_headers(),
-        timeout=30,
-    )
+    }
+    req_headers = _mcp_headers()
+    resp = httpx.post(settings.MCP_URL, json=req_body, headers=req_headers, timeout=30)
+
     # Store session ID from response header
     session_id = resp.headers.get("mcp-session-id")
     if session_id:
         _mcp_session_id = session_id
         print(f"[MCP] Session initialized: {_mcp_session_id}")
 
+    parsed = _parse_mcp_response(resp)
+    _debug_log("mcp_initialize", {
+        "request": {"url": settings.MCP_URL, "headers": req_headers, "body": req_body},
+    }, {
+        "response": {"status": resp.status_code, "headers": dict(resp.headers), "body": parsed},
+    })
+
     # Send initialized notification
-    httpx.post(
-        settings.MCP_URL,
-        json={"jsonrpc": "2.0", "method": "notifications/initialized"},
-        headers=_mcp_headers(),
-        timeout=10,
-    )
-    return _parse_mcp_response(resp)
+    notif_body = {"jsonrpc": "2.0", "method": "notifications/initialized"}
+    resp2 = httpx.post(settings.MCP_URL, json=notif_body, headers=_mcp_headers(), timeout=10)
+    _debug_log("mcp_initialized_notification", {
+        "request": {"url": settings.MCP_URL, "headers": _mcp_headers(), "body": notif_body},
+    }, {
+        "response": {"status": resp2.status_code, "headers": dict(resp2.headers), "body": resp2.text},
+    })
+
+    return parsed
 
 
 def mcp_list_tools():
@@ -102,30 +147,38 @@ def mcp_list_tools():
     if not _mcp_session_id:
         mcp_initialize()
 
-    resp = httpx.post(
-        settings.MCP_URL,
-        json={"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}},
-        headers=_mcp_headers(),
-        timeout=30,
-    )
+    req_body = {"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}}
+    req_headers = _mcp_headers()
+    resp = httpx.post(settings.MCP_URL, json=req_body, headers=req_headers, timeout=30)
     data = _parse_mcp_response(resp)
+
+    _debug_log("mcp_list_tools", {
+        "request": {"url": settings.MCP_URL, "headers": req_headers, "body": req_body},
+    }, {
+        "response": {"status": resp.status_code, "headers": dict(resp.headers), "body": data},
+    })
+
     return data.get("result", {}).get("tools", [])
 
 
 def mcp_call_tool(name, arguments):
     """Call a tool on the MCP server and return its result."""
-    resp = httpx.post(
-        settings.MCP_URL,
-        json={
-            "jsonrpc": "2.0",
-            "id": 2,
-            "method": "tools/call",
-            "params": {"name": name, "arguments": arguments},
-        },
-        headers=_mcp_headers(),
-        timeout=60,
-    )
+    req_body = {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "method": "tools/call",
+        "params": {"name": name, "arguments": arguments},
+    }
+    req_headers = _mcp_headers()
+    resp = httpx.post(settings.MCP_URL, json=req_body, headers=req_headers, timeout=60)
     data = _parse_mcp_response(resp)
+
+    _debug_log(f"mcp_call_tool_{name}", {
+        "request": {"url": settings.MCP_URL, "headers": req_headers, "body": req_body},
+    }, {
+        "response": {"status": resp.status_code, "headers": dict(resp.headers), "body": data},
+    })
+
     result = data.get("result", {})
     content_list = result.get("content", [])
     parts = []
@@ -169,8 +222,13 @@ def ai_chat_completion(messages, tools=None):
         payload["tools"] = tools
         payload["tool_choice"] = "auto"
 
+    url = f"{settings.AI_BASE_URL}/chat/completions"
+    req_headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {settings.AI_API_KEY[:8]}...hidden",
+    }
     resp = httpx.post(
-        f"{settings.AI_BASE_URL}/chat/completions",
+        url,
         json=payload,
         headers={
             "Content-Type": "application/json",
@@ -179,7 +237,15 @@ def ai_chat_completion(messages, tools=None):
         timeout=120,
     )
     resp.raise_for_status()
-    return resp.json()
+    data = resp.json()
+
+    _debug_log("ai_chat_completion", {
+        "request": {"url": url, "headers": req_headers, "body": payload},
+    }, {
+        "response": {"status": resp.status_code, "headers": dict(resp.headers), "body": data},
+    })
+
+    return data
 
 
 # ---------------------------------------------------------------------------

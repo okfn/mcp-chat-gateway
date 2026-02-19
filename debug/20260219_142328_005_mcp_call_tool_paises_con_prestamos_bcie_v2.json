@@ -1,0 +1,47 @@
+{
+  "label": "mcp_call_tool_paises_con_prestamos_bcie_v2",
+  "timestamp": "20260219_142328",
+  "request": {
+    "url": "http://127.0.0.1:8063/",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "text/event-stream, application/json",
+      "Mcp-Session-Id": "5783be5fe7bd4e9f877a75089b5a5b76"
+    },
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "method": "tools/call",
+      "params": {
+        "name": "paises_con_prestamos_bcie_v2",
+        "arguments": {}
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "date": "Thu, 19 Feb 2026 17:23:26 GMT",
+      "server": "uvicorn",
+      "cache-control": "no-cache, no-transform",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream",
+      "mcp-session-id": "5783be5fe7bd4e9f877a75089b5a5b76",
+      "x-accel-buffering": "no",
+      "transfer-encoding": "chunked"
+    },
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "El BCIE otorgó préstamos a 13 países :\n  - Argentina\n  - Belice\n  - Colombia\n  - Costa Rica\n  - Cuba\n  - El Salvador\n  - Guatemala\n  - Honduras\n  - México\n  - Nicaragua\n  - ...\nFuente: https://datosabiertos.bcie.org/dataset/prestamos/resource/ce88a753-57f5-4266-a57e-394600c8435d\n"
+          }
+        ],
+        "isError": false
+      }
+    }
+  }
+}

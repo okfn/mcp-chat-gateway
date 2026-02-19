@@ -7,6 +7,7 @@ AI_MODEL = "deepseek-chat"
 MCP_URL = "http://127.0.0.1:8063/"
 WEBCHAT_HOST = "127.0.0.1"
 WEBCHAT_PORT = 8064
+DEBUG = False
 
 
 # Optionally override settings with local_settings.py (not committed to git)
@@ -23,3 +24,4 @@ AI_MODEL = os.getenv("AI_MODEL", AI_MODEL)
 MCP_URL = os.getenv("MCP_URL", MCP_URL)
 WEBCHAT_HOST = os.getenv("WEBCHAT_HOST", WEBCHAT_HOST)
 WEBCHAT_PORT = int(os.getenv("WEBCHAT_PORT", WEBCHAT_PORT))
+DEBUG = os.getenv("DEBUG", str(DEBUG)).lower() in ("true", "1", "yes")
