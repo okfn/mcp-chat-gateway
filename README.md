@@ -14,3 +14,7 @@ but should work with any MCP server that implements the spec.
 ## Server + Client + Chat UI
 
 ![MCP Chat Gateway](docs/images/mcp-chat-gateway.png)
+
+### Debug
+
+To know exactly what's happening internally, see the [debug folder](debug/README.md).  
