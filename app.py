@@ -23,7 +23,7 @@ import settings
 # Maximum tool-call rounds to prevent infinite loops
 MAX_TOOL_ROUNDS = 10
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static")
 
 # ---------------------------------------------------------------------------
 # MCP client helpers
