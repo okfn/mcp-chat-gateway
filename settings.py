@@ -1,4 +1,3 @@
-"sk-264e67c110bf4b5dba6161203bcf6d0c"
 import os
 
 AI_BASE_URL = "https://api.deepseek.com/v1"
