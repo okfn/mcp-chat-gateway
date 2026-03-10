@@ -1,6 +1,8 @@
 const messagesEl = document.getElementById("messages");
 const inputEl = document.getElementById("input");
 const sendBtn = document.getElementById("send");
+const vizContent = document.getElementById("viz-content");
+const vizPlaceholder = document.getElementById("viz-placeholder");
 
 let conversation = [];
 
@@ -10,6 +12,142 @@ function addMessage(role, text) {
   div.textContent = text;
   messagesEl.appendChild(div);
   messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function showVizPanel() {
+  vizPlaceholder.style.display = "none";
+  vizContent.style.display = "flex";
+}
+
+const COLORS = [
+  "#4e79a7", "#f28e2b", "#e15759", "#76b7b2",
+  "#59a14f", "#edc948", "#b07aa1", "#ff9da7",
+  "#9c755f", "#bab0ac", "#a0cbe8", "#ffbe7d",
+  "#8cd17d", "#b6992d", "#f1ce63", "#499894",
+];
+
+function addChart(chartData) {
+  showVizPanel();
+
+  const div = document.createElement("div");
+  div.className = "viz-item chart-item";
+  const canvas = document.createElement("canvas");
+  div.appendChild(canvas);
+
+  // Insert at top so newest is first
+  vizContent.insertBefore(div, vizContent.firstChild);
+
+  const isStacked = chartData.stacked && chartData.datasets;
+  let datasets;
+
+  if (isStacked) {
+    // Multi-dataset stacked chart
+    datasets = chartData.datasets.map((ds, i) => ({
+      label: ds.label,
+      data: ds.data,
+      backgroundColor: COLORS[i % COLORS.length],
+    }));
+  } else if (chartData.datasets) {
+    // Single dataset in datasets array format
+    datasets = chartData.datasets.map(ds => ({
+      ...ds,
+      backgroundColor: COLORS.slice(0, chartData.labels.length),
+    }));
+  } else {
+    // Legacy single-series format
+    datasets = [{
+      label: chartData.label || "",
+      data: chartData.data,
+      backgroundColor: COLORS.slice(0, chartData.labels.length),
+    }];
+  }
+
+  new Chart(canvas, {
+    type: chartData.type || "bar",
+    data: {
+      labels: chartData.labels,
+      datasets: datasets,
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: { display: isStacked },
+      },
+      scales: isStacked ? {
+        x: { stacked: true },
+        y: { stacked: true },
+      } : {},
+    },
+  });
+
+  vizContent.parentElement.scrollTop = 0;
+}
+
+function addTable(tableData) {
+  showVizPanel();
+
+  // Outer wrapper groups table + button
+  const wrapper = document.createElement("div");
+  wrapper.className = "viz-item table-wrapper";
+
+  // Scrollable table container
+  const scrollDiv = document.createElement("div");
+  scrollDiv.className = "table-scroll";
+
+  const table = document.createElement("table");
+  const thead = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+  tableData.headers.forEach(h => {
+    const th = document.createElement("th");
+    th.textContent = h;
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  tableData.rows.forEach(row => {
+    const tr = document.createElement("tr");
+    row.forEach(cell => {
+      const td = document.createElement("td");
+      td.textContent = cell;
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+
+  scrollDiv.appendChild(table);
+  wrapper.appendChild(scrollDiv);
+
+  // CSV download button — outside the scroll area, always visible
+  const dlBtn = document.createElement("button");
+  dlBtn.className = "csv-download-btn";
+  dlBtn.textContent = "Descargar CSV";
+  dlBtn.addEventListener("click", () => {
+    const csvRows = [tableData.headers.join(",")];
+    tableData.rows.forEach(row => {
+      csvRows.push(row.map(cell => {
+        const s = String(cell);
+        return s.includes(",") || s.includes('"') || s.includes("\n")
+          ? '"' + s.replace(/"/g, '""') + '"'
+          : s;
+      }).join(","));
+    });
+    const blob = new Blob([csvRows.join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "datos.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+  wrapper.appendChild(dlBtn);
+
+  // Insert at top so newest is first
+  vizContent.insertBefore(wrapper, vizContent.firstChild);
+  vizContent.parentElement.scrollTop = 0;
 }
 
 function showTyping() {
@@ -59,6 +197,14 @@ async function sendMessage() {
       const reply = data.reply || "(no response)";
       addMessage("assistant", reply);
       conversation.push({ role: "assistant", content: reply });
+
+      // Render visualizations in the viz panel
+      if (data.tables) {
+        data.tables.forEach(addTable);
+      }
+      if (data.charts) {
+        data.charts.forEach(addChart);
+      }
     }
   } catch (err) {
     hideTyping();

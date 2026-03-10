@@ -10,13 +10,22 @@
 
 <header>Chat</header>
 
-<div id="messages"></div>
+<div id="main">
+  <div id="viz-panel">
+    <div id="viz-placeholder">Charts and tables will appear here</div>
+    <div id="viz-content"></div>
+  </div>
 
-<div id="input-area">
-  <textarea id="input" rows="1" placeholder="Type a message..." autofocus></textarea>
-  <button id="send">Send</button>
+  <div id="chat-panel">
+    <div id="messages"></div>
+    <div id="input-area">
+      <textarea id="input" rows="1" placeholder="Type a message..." autofocus></textarea>
+      <button id="send">Send</button>
+    </div>
+  </div>
 </div>
 
+<script src="/static/chart.js"></script>
 <script src="/static/chat.js"></script>
 
 </body>
