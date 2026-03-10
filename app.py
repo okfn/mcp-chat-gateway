@@ -10,8 +10,10 @@ Any OpenAI-compatible API works (DeepSeek, OpenAI, Ollama, etc).
 import json
 import os
 import re
+from datetime import datetime, timezone
+
 import httpx
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, Response, jsonify, request, send_from_directory
 
 import settings
 from utils.debug import logger
@@ -238,9 +240,26 @@ def index():
     return send_from_directory(os.path.dirname(__file__), "index.html")
 
 
+@app.route("/config")
+def config():
+    """Expose client-relevant configuration flags."""
+    return jsonify({"debug_all_tool_calls": settings.DEBUG_ALL_TOOL_CALLS})
+
+
+def _sse_event(event, data):
+    """Format a single SSE event string."""
+    return f"event: {event}\ndata: {json.dumps(data)}\n\n"
+
+
 @app.route("/chat", methods=["POST"])
 def chat():
-    """Handle a chat request: AI completion + MCP tool calling loop."""
+    """Handle a chat request: AI completion + MCP tool calling loop.
+
+    Streams SSE events so tool calls appear in real-time:
+      event: tool_call   — each MCP tool invocation (immediate)
+      event: result       — final reply with tables/charts
+      event: error        — on failure
+    """
     body = request.get_json()
     messages = body.get("messages", [])
 
@@ -250,125 +269,138 @@ def chat():
     if not settings.AI_API_KEY:
         return jsonify({"error": "settings.AI_API_KEY not configured"}), 500
 
-    # Fetch available MCP tools
-    try:
-        mcp_tools = mcp_list_tools()
-        logger.info(f"MCP found {len(mcp_tools)} tools: {[t['name'] for t in mcp_tools]}")
-    except Exception as e:
-        logger.error(f"MCP connection error: {e}")
-        mcp_tools = []
-
-    openai_tools = mcp_tools_to_openai_format(mcp_tools) if mcp_tools else None
-    if openai_tools:
-        logger.info(f"Sending {len(openai_tools)} tools to {settings.AI_MODEL}")
-
-    # Build system prompt telling the AI to use its tools
-    tool_names = [t["name"] for t in mcp_tools] if mcp_tools else []
-    system_msg = {
-        "role": "system",
-        "content": (
-            "You are a specialized assistant that ONLY answers questions using the available tools. "
-            "You MUST call at least one tool for every user question. "
-            "Available tools: " + ", ".join(tool_names) + ". "
-            "If none of the tools can answer the question, respond EXACTLY with: "
-            "\"No estamos listos para responder tu pregunta, solo respondemos consultas sobre sobre analisis de datos predefinidos.\"\n"
-            "NEVER answer from your own knowledge. ONLY use tool results.\n"
-            "IMPORTANT: Do NOT use the output_format parameter. Tables and charts are rendered automatically."
-        ),
-    }
-    messages = [system_msg] + messages
-
-    # Collect rich content from tool results before sending to AI, so the AI can refer to it without repeating data in text
-    charts = []
-    tables = []
-
-    # Tool-calling loop
-    for _ in range(MAX_TOOL_ROUNDS):
+    def generate():
+        # Fetch available MCP tools
         try:
-            result = ai_chat_completion(messages, tools=openai_tools)
-        except httpx.HTTPStatusError as e:
-            return jsonify({"error": f"AI provider error: {e.response.status_code}"}), 502
+            mcp_tools = mcp_list_tools()
+            logger.info(f"MCP found {len(mcp_tools)} tools: {[t['name'] for t in mcp_tools]}")
+        except Exception as e:
+            logger.error(f"MCP connection error: {e}")
+            mcp_tools = []
 
-        choice = result["choices"][0]
-        message = choice["message"]
+        openai_tools = mcp_tools_to_openai_format(mcp_tools) if mcp_tools else None
+        if openai_tools:
+            logger.info(f"Sending {len(openai_tools)} tools to {settings.AI_MODEL}")
 
-        # If no tool calls, we're done
-        tool_calls = message.get("tool_calls")
-        if not tool_calls:
-            logger.info("AI final response (no tool calls)")
-            reply = message.get("content", "")
-            resp = {"reply": reply}
-            if tables:
-                resp["tables"] = tables
-            if charts:
-                resp["charts"] = charts
-            return jsonify(resp)
+        # Build system prompt telling the AI to use its tools
+        tool_names = [t["name"] for t in mcp_tools] if mcp_tools else []
+        system_msg = {
+            "role": "system",
+            "content": (
+                "You are a specialized assistant that ONLY answers questions using the available tools. "
+                "You MUST call at least one tool for every user question. "
+                "Available tools: " + ", ".join(tool_names) + ". "
+                "If none of the tools can answer the question, respond EXACTLY with: "
+                "\"No estamos listos para responder tu pregunta, solo respondemos consultas sobre sobre analisis de datos predefinidos.\"\n"
+                "NEVER answer from your own knowledge. ONLY use tool results.\n"
+                "IMPORTANT: Do NOT use the output_format parameter. Tables and charts are rendered automatically."
+            ),
+        }
+        msgs = [system_msg] + messages
 
-        # Append assistant message with tool calls
-        logger.info(f"AI tool calls requested: {[tc['function']['name'] for tc in tool_calls]}")
-        messages.append(message)
+        # Collect rich content from tool results before sending to AI
+        charts = []
+        tables = []
 
-        # Execute each tool call via MCP
-        for tc in tool_calls:
-            fn = tc["function"]
-            tool_name = fn["name"]
+        # Tool-calling loop
+        for _ in range(MAX_TOOL_ROUNDS):
             try:
-                tool_args = json.loads(fn["arguments"]) if fn["arguments"] else {}
-            except json.JSONDecodeError:
-                tool_args = {}
+                result = ai_chat_completion(msgs, tools=openai_tools)
+            except httpx.HTTPStatusError as e:
+                yield _sse_event("error", {"error": f"AI provider error: {e.response.status_code}"})
+                return
 
-            # Force text format so tools return markers (<!--table:...-->, <!--chart:...-->)
-            # that the webchat can extract and render directly.
-            # The AI should not control the output format in the webchat context.
-            tool_args.pop("output_format", None)
+            choice = result["choices"][0]
+            message = choice["message"]
 
-            try:
-                tool_result = mcp_call_tool(tool_name, tool_args)
-            except Exception as e:
-                tool_result = f"Error calling tool: {e}"
+            # If no tool calls, we're done
+            tool_calls = message.get("tool_calls")
+            if not tool_calls:
+                logger.info("AI final response (no tool calls)")
+                reply = message.get("content", "")
+                resp = {"reply": reply}
+                if tables:
+                    resp["tables"] = tables
+                if charts:
+                    resp["charts"] = charts
+                yield _sse_event("result", resp)
+                return
 
-            # Extract rich content before sending to AI
-            for match in CHART_PATTERN.findall(tool_result):
+            # Append assistant message with tool calls
+            logger.info(f"AI tool calls requested: {[tc['function']['name'] for tc in tool_calls]}")
+            msgs.append(message)
+
+            # Execute each tool call via MCP
+            for tc in tool_calls:
+                fn = tc["function"]
+                tool_name = fn["name"]
                 try:
-                    charts.append(json.loads(match))
+                    tool_args = json.loads(fn["arguments"]) if fn["arguments"] else {}
                 except json.JSONDecodeError:
-                    pass
-            for match in TABLE_PATTERN.findall(tool_result):
-                try:
-                    tables.append(json.loads(match))
-                except json.JSONDecodeError:
-                    pass
-            # Strip all markers from text sent to AI
-            clean_result = CHART_PATTERN.sub("", tool_result)
-            clean_result = TABLE_PATTERN.sub("", clean_result).strip()
+                    tool_args = {}
 
-            # Tell AI what was rendered so it doesn't repeat data
-            rendered = []
-            if CHART_PATTERN.search(tool_result):
-                rendered.append("chart")
-            if TABLE_PATTERN.search(tool_result):
-                rendered.append("table")
-            if rendered:
-                clean_result += (
-                    "\n[The data has been rendered as a "
-                    + " and ".join(rendered)
-                    + " for the user. Summarize briefly, do not repeat the data.]"
+                # Force text format so tools return markers (<!--table:...-->, <!--chart:...-->)
+                # that the webchat can extract and render directly.
+                # The AI should not control the output format in the webchat context.
+                tool_args.pop("output_format", None)
+
+                # Stream tool call event to client in real-time
+                if settings.DEBUG_ALL_TOOL_CALLS:
+                    yield _sse_event("tool_call", {
+                        "timestamp": datetime.now(timezone.utc).strftime("%H:%M:%S.%f")[:-3],
+                        "tool": tool_name,
+                        "arguments": tool_args,
+                    })
+
+                try:
+                    tool_result = mcp_call_tool(tool_name, tool_args)
+                except Exception as e:
+                    tool_result = f"Error calling tool: {e}"
+
+                # Extract rich content before sending to AI
+                for match in CHART_PATTERN.findall(tool_result):
+                    try:
+                        charts.append(json.loads(match))
+                    except json.JSONDecodeError:
+                        pass
+                for match in TABLE_PATTERN.findall(tool_result):
+                    try:
+                        tables.append(json.loads(match))
+                    except json.JSONDecodeError:
+                        pass
+                # Strip all markers from text sent to AI
+                clean_result = CHART_PATTERN.sub("", tool_result)
+                clean_result = TABLE_PATTERN.sub("", clean_result).strip()
+
+                # Tell AI what was rendered so it doesn't repeat data
+                rendered = []
+                if CHART_PATTERN.search(tool_result):
+                    rendered.append("chart")
+                if TABLE_PATTERN.search(tool_result):
+                    rendered.append("table")
+                if rendered:
+                    clean_result += (
+                        "\n[The data has been rendered as a "
+                        + " and ".join(rendered)
+                        + " for the user. Summarize briefly, do not repeat the data.]"
+                    )
+
+                msgs.append(
+                    {
+                        "role": "tool",
+                        "tool_call_id": tc["id"],
+                        "content": clean_result,
+                    }
                 )
 
-            messages.append(
-                {
-                    "role": "tool",
-                    "tool_call_id": tc["id"],
-                    "content": clean_result,
-                }
-            )
+        resp = {"reply": "Maximum tool call rounds reached."}
+        if tables:
+            resp["tables"] = tables
+        if charts:
+            resp["charts"] = charts
+        yield _sse_event("result", resp)
 
-    resp = {"reply": "Maximum tool call rounds reached."}
-    if tables:
-        resp["tables"] = tables
-    if charts:
-        resp["charts"] = charts
-    return jsonify(resp)
+    return Response(generate(), mimetype="text/event-stream")
 
 
 # ---------------------------------------------------------------------------

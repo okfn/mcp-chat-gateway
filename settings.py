@@ -7,6 +7,7 @@ MCP_URL = "http://127.0.0.1:8063/"
 WEBCHAT_HOST = "127.0.0.1"
 WEBCHAT_PORT = 8064
 LOG_LEVEL = "INFO"
+DEBUG_ALL_TOOL_CALLS = False
 
 
 # Optionally override settings with local_settings.py (not committed to git)
@@ -24,3 +25,4 @@ MCP_URL = os.getenv("MCP_URL", MCP_URL)
 WEBCHAT_HOST = os.getenv("WEBCHAT_HOST", WEBCHAT_HOST)
 WEBCHAT_PORT = int(os.getenv("WEBCHAT_PORT", WEBCHAT_PORT))
 LOG_LEVEL = os.getenv("LOG_LEVEL", LOG_LEVEL).upper()
+DEBUG_ALL_TOOL_CALLS = os.getenv("DEBUG_ALL_TOOL_CALLS", str(DEBUG_ALL_TOOL_CALLS)).lower() in ("true", "1", "yes")

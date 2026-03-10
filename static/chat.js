@@ -5,6 +5,13 @@ const vizContent = document.getElementById("viz-content");
 const vizPlaceholder = document.getElementById("viz-placeholder");
 
 let conversation = [];
+let debugAllToolCalls = false;
+
+// Fetch config on load
+fetch("/config")
+  .then(r => r.json())
+  .then(cfg => { debugAllToolCalls = cfg.debug_all_tool_calls || false; })
+  .catch(() => {});
 
 function addMessage(role, text) {
   const div = document.createElement("div");
@@ -26,6 +33,19 @@ const COLORS = [
   "#8cd17d", "#b6992d", "#f1ce63", "#499894",
 ];
 
+function addToolCall(tc) {
+  if (!debugAllToolCalls) return;
+  showVizPanel();
+  const entry = document.createElement("div");
+  entry.className = "debug-entry";
+  const args = Object.keys(tc.arguments).length
+    ? JSON.stringify(tc.arguments)
+    : "(no args)";
+  entry.textContent = `[${tc.timestamp}] ${tc.tool}  ${args}`;
+  vizContent.appendChild(entry);
+  vizContent.parentElement.scrollTop = vizContent.parentElement.scrollHeight;
+}
+
 function addChart(chartData) {
   showVizPanel();
 
@@ -34,8 +54,7 @@ function addChart(chartData) {
   const canvas = document.createElement("canvas");
   div.appendChild(canvas);
 
-  // Insert at top so newest is first
-  vizContent.insertBefore(div, vizContent.firstChild);
+  vizContent.appendChild(div);
 
   const isStacked = chartData.stacked && chartData.datasets;
   let datasets;
@@ -81,7 +100,7 @@ function addChart(chartData) {
     },
   });
 
-  vizContent.parentElement.scrollTop = 0;
+  vizContent.parentElement.scrollTop = vizContent.parentElement.scrollHeight;
 }
 
 function addTable(tableData) {
@@ -145,9 +164,8 @@ function addTable(tableData) {
   });
   wrapper.appendChild(dlBtn);
 
-  // Insert at top so newest is first
-  vizContent.insertBefore(wrapper, vizContent.firstChild);
-  vizContent.parentElement.scrollTop = 0;
+  vizContent.appendChild(wrapper);
+  vizContent.parentElement.scrollTop = vizContent.parentElement.scrollHeight;
 }
 
 function showTyping() {
@@ -169,6 +187,69 @@ function setEnabled(enabled) {
   inputEl.disabled = !enabled;
 }
 
+// ---------------------------------------------------------------------------
+// SSE stream parser — reads events as they arrive
+// ---------------------------------------------------------------------------
+
+async function readSSE(response) {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    // Process complete events (separated by double newline)
+    const parts = buffer.split("\n\n");
+    buffer = parts.pop(); // keep incomplete tail
+
+    for (const part of parts) {
+      if (!part.trim()) continue;
+      let eventType = "message";
+      let data = "";
+      for (const line of part.split("\n")) {
+        if (line.startsWith("event: ")) {
+          eventType = line.slice(7).trim();
+        } else if (line.startsWith("data: ")) {
+          data = line.slice(6);
+        }
+      }
+      if (!data) continue;
+      try {
+        const parsed = JSON.parse(data);
+        handleSSEEvent(eventType, parsed);
+      } catch (e) {
+        // ignore malformed events
+      }
+    }
+  }
+}
+
+function handleSSEEvent(eventType, data) {
+  if (eventType === "tool_call") {
+    addToolCall(data);
+  } else if (eventType === "error") {
+    hideTyping();
+    addMessage("error", data.error || "Unknown error");
+  } else if (eventType === "result") {
+    hideTyping();
+    const reply = data.reply || "(no response)";
+    addMessage("assistant", reply);
+    conversation.push({ role: "assistant", content: reply });
+
+    if (data.tables) {
+      data.tables.forEach(addTable);
+    }
+    if (data.charts) {
+      data.charts.forEach(addChart);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+
 async function sendMessage() {
   const text = inputEl.value.trim();
   if (!text) return;
@@ -188,24 +269,7 @@ async function sendMessage() {
       body: JSON.stringify({ messages: conversation }),
     });
 
-    const data = await resp.json();
-    hideTyping();
-
-    if (data.error) {
-      addMessage("error", data.error);
-    } else {
-      const reply = data.reply || "(no response)";
-      addMessage("assistant", reply);
-      conversation.push({ role: "assistant", content: reply });
-
-      // Render visualizations in the viz panel
-      if (data.tables) {
-        data.tables.forEach(addTable);
-      }
-      if (data.charts) {
-        data.charts.forEach(addChart);
-      }
-    }
+    await readSSE(resp);
   } catch (err) {
     hideTyping();
     addMessage("error", "Connection error: " + err.message);

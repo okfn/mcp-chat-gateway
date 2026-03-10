@@ -17,4 +17,5 @@ but should work with any MCP server that implements the spec.
 
 ### Debug
 
+You can see MCP server tools usage in real time by activating `DEBUG_ALL_TOOL_CALLS` in the settings file.  
 To know exactly what's happening internally, see the [debug folder](debug/README.md).  

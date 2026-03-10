@@ -238,6 +238,21 @@ header {
 }
 
 /* ---------------------------------------------------------------------------
+   Debug tool-call entries (inline in viz-content)
+   --------------------------------------------------------------------------- */
+
+.debug-entry {
+  background: #1a1a2e;
+  color: #cfd8dc;
+  font-family: "SF Mono", "Cascadia Mono", "Consolas", monospace;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* ---------------------------------------------------------------------------
    Typing indicator
    --------------------------------------------------------------------------- */
 
