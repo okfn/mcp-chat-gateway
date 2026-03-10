@@ -9,6 +9,7 @@ Any OpenAI-compatible API works (DeepSeek, OpenAI, Ollama, etc).
 
 import json
 import os
+import re
 import httpx
 from flask import Flask, jsonify, request, send_from_directory
 
@@ -23,6 +24,10 @@ from utils.debug import logger
 
 # Maximum tool-call rounds to prevent infinite loops
 MAX_TOOL_ROUNDS = 10
+
+# Patterns to extract rich content embedded by MCP tools
+CHART_PATTERN = re.compile(r"<!--chart:(.*?)-->", re.DOTALL)
+TABLE_PATTERN = re.compile(r"<!--table:(.*?)-->", re.DOTALL)
 
 app = Flask(__name__, static_folder="static")
 
@@ -266,11 +271,16 @@ def chat():
             "You MUST call at least one tool for every user question. "
             "Available tools: " + ", ".join(tool_names) + ". "
             "If none of the tools can answer the question, respond EXACTLY with: "
-            "\"No estamos listos para responder tu pregunta, solo respondemos consultas sobre el BCIE.\"\n"
-            "NEVER answer from your own knowledge. ONLY use tool results."
+            "\"No estamos listos para responder tu pregunta, solo respondemos consultas sobre sobre analisis de datos predefinidos.\"\n"
+            "NEVER answer from your own knowledge. ONLY use tool results.\n"
+            "IMPORTANT: Do NOT use the output_format parameter. Tables and charts are rendered automatically."
         ),
     }
     messages = [system_msg] + messages
+
+    # Collect rich content from tool results before sending to AI, so the AI can refer to it without repeating data in text
+    charts = []
+    tables = []
 
     # Tool-calling loop
     for _ in range(MAX_TOOL_ROUNDS):
@@ -286,7 +296,13 @@ def chat():
         tool_calls = message.get("tool_calls")
         if not tool_calls:
             logger.info("AI final response (no tool calls)")
-            return jsonify({"reply": message.get("content", "")})
+            reply = message.get("content", "")
+            resp = {"reply": reply}
+            if tables:
+                resp["tables"] = tables
+            if charts:
+                resp["charts"] = charts
+            return jsonify(resp)
 
         # Append assistant message with tool calls
         logger.info(f"AI tool calls requested: {[tc['function']['name'] for tc in tool_calls]}")
@@ -301,20 +317,58 @@ def chat():
             except json.JSONDecodeError:
                 tool_args = {}
 
+            # Force text format so tools return markers (<!--table:...-->, <!--chart:...-->)
+            # that the webchat can extract and render directly.
+            # The AI should not control the output format in the webchat context.
+            tool_args.pop("output_format", None)
+
             try:
                 tool_result = mcp_call_tool(tool_name, tool_args)
             except Exception as e:
                 tool_result = f"Error calling tool: {e}"
 
+            # Extract rich content before sending to AI
+            for match in CHART_PATTERN.findall(tool_result):
+                try:
+                    charts.append(json.loads(match))
+                except json.JSONDecodeError:
+                    pass
+            for match in TABLE_PATTERN.findall(tool_result):
+                try:
+                    tables.append(json.loads(match))
+                except json.JSONDecodeError:
+                    pass
+            # Strip all markers from text sent to AI
+            clean_result = CHART_PATTERN.sub("", tool_result)
+            clean_result = TABLE_PATTERN.sub("", clean_result).strip()
+
+            # Tell AI what was rendered so it doesn't repeat data
+            rendered = []
+            if CHART_PATTERN.search(tool_result):
+                rendered.append("chart")
+            if TABLE_PATTERN.search(tool_result):
+                rendered.append("table")
+            if rendered:
+                clean_result += (
+                    "\n[The data has been rendered as a "
+                    + " and ".join(rendered)
+                    + " for the user. Summarize briefly, do not repeat the data.]"
+                )
+
             messages.append(
                 {
                     "role": "tool",
                     "tool_call_id": tc["id"],
-                    "content": tool_result,
+                    "content": clean_result,
                 }
             )
 
-    return jsonify({"reply": "Maximum tool call rounds reached."})
+    resp = {"reply": "Maximum tool call rounds reached."}
+    if tables:
+        resp["tables"] = tables
+    if charts:
+        resp["charts"] = charts
+    return jsonify(resp)
 
 
 # ---------------------------------------------------------------------------
