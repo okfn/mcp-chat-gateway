@@ -58,6 +58,7 @@ header {
   line-height: 1.5;
   white-space: pre-wrap;
   word-wrap: break-word;
+  flex-shrink: 0;
 }
 
 .msg.user {
@@ -135,6 +136,32 @@ header {
   color: #888;
   font-style: italic;
   padding: 8px 14px;
+  flex-shrink: 0;
+}
+
+.typing-bar {
+  margin-top: 6px;
+  width: 120px;
+  height: 4px;
+  background: #e0e0e0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.typing-bar::after {
+  content: "";
+  display: block;
+  width: 40%;
+  height: 100%;
+  background: #1a1a2e;
+  border-radius: 2px;
+  animation: typing-slide 1.2s ease-in-out infinite;
+}
+
+@keyframes typing-slide {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(200%); }
+  100% { transform: translateX(-100%); }
 }
 
 .debug-entry {
@@ -243,4 +270,59 @@ main {
 
 .about-section a:hover {
   text-decoration: underline;
+}
+
+.force-title {
+  font-size: 11px;
+  font-weight: bold;
+  margin-bottom: 6px;
+  background-color: #75adec;
+  color: #130436;
+}
+
+.msg.force {
+  align-self: stretch;
+  max-width: 100%;
+  background: #97c2f2;
+  color: #130436;
+  border: 1px solid #111050;
+}
+
+.msg.table {
+  align-self: stretch;
+  max-width: 100%;
+  padding: 0;
+  background: #97c2f2;
+  color: #130436;
+  border: 1px solid #111050;
+  overflow-x: auto;
+}
+
+.msg.table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  display: table;
+  white-space: normal;
+}
+
+.msg.table th,
+.msg.table td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid #75adec;
+}
+
+.msg.table .force-title {
+  padding: 8px 12px 4px;
+}
+
+.msg.table th {
+  background: #75adec;
+  color: #130436;
+  font-weight: 600;
+}
+
+.msg.table tr:hover td {
+  background: #85b8f0;
 }
