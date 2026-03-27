@@ -110,3 +110,14 @@ header {
   font-style: italic;
   padding: 8px 14px;
 }
+
+.debug-entry {
+  background: #1a1a2e;
+  color: #cfd8dc;
+  font-family: "SF Mono", "Cascadia Mono", "Consolas", monospace;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}

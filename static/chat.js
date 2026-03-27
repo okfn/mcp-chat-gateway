@@ -50,16 +50,8 @@ async function sendMessage() {
       body: JSON.stringify({ messages: conversation }),
     });
 
-    const data = await resp.json();
-    hideTyping();
+    await readSSE(resp);
 
-    if (data.error) {
-      addMessage("error", data.error);
-    } else {
-      const reply = data.reply || "(no response)";
-      addMessage("assistant", reply);
-      conversation.push({ role: "assistant", content: reply });
-    }
   } catch (err) {
     hideTyping();
     addMessage("error", "Connection error: " + err.message);
@@ -67,6 +59,7 @@ async function sendMessage() {
 
   setEnabled(true);
   inputEl.focus();
+
 }
 
 sendBtn.addEventListener("click", sendMessage);
@@ -82,3 +75,75 @@ inputEl.addEventListener("input", () => {
   inputEl.style.height = "auto";
   inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + "px";
 });
+
+// ---------------------------------------------------------------------------
+// SSE stream parser — reads events as they arrive
+// ---------------------------------------------------------------------------
+
+async function readSSE(response) {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    // Process complete events (separated by double newline)
+    const parts = buffer.split("\n\n");
+    buffer = parts.pop(); // keep incomplete tail
+
+    for (const part of parts) {
+      if (!part.trim()) continue;
+      let eventType = "message";
+      let data = "";
+      for (const line of part.split("\n")) {
+        if (line.startsWith("event: ")) {
+          eventType = line.slice(7).trim();
+        } else if (line.startsWith("data: ")) {
+          data = line.slice(6);
+        }
+      }
+      if (!data) continue;
+      try {
+        const parsed = JSON.parse(data);
+        handleSSEEvent(eventType, parsed);
+      } catch (e) {
+        // ignore malformed events
+      }
+    }
+  }
+}
+
+function handleSSEEvent(eventType, data) {
+  // We received a internal event from the server (tool call, error, or final result).
+  if (eventType === "tool_call") {
+    addToolCall(data);
+  } else if (eventType === "error") {
+    hideTyping();
+    addMessage("error", data.error || "Unknown error");
+  } else if (eventType === "result") {
+    hideTyping();
+    const reply = data.reply || "(no response)";
+    addMessage("assistant", reply);
+    conversation.push({ role: "assistant", content: reply });
+  } else {
+    // Unknown event type — show
+    hideTyping();
+    addMessage("error", `Unknown event type: ${eventType}`);
+  }
+}
+
+function addToolCall(tc) {
+  // Add a internall tool call to the chat.
+  const entry = document.createElement("div");
+  entry.className = "debug-entry";
+  const args = Object.keys(tc.arguments).length
+    ? JSON.stringify(tc.arguments)
+    : "(no args)";
+  entry.textContent = `[${tc.timestamp}] ${tc.tool}  ${args}`;
+  messagesEl.appendChild(entry);
+  // ensure scroll to bottom
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}

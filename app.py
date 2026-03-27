@@ -6,11 +6,11 @@ Dependencies: flask, httpx
 AI provider is configurable via environment variables.
 Any OpenAI-compatible API works (DeepSeek, OpenAI, Ollama, etc).
 """
-
+from datetime import datetime, timezone
 import json
 import os
 import httpx
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, Response, jsonify, request, send_from_directory
 
 import settings
 from utils.debug import logger
@@ -226,6 +226,10 @@ def ai_chat_completion(messages, tools=None):
 # Routes
 # ---------------------------------------------------------------------------
 
+def sse_event(event, data):
+    """Format a single SSE event string."""
+    return f"event: {event}\ndata: {json.dumps(data)}\n\n"
+
 
 @app.route("/")
 def index():
@@ -235,7 +239,13 @@ def index():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    """Handle a chat request: AI completion + MCP tool calling loop."""
+    """Handle a chat request: AI completion + MCP tool calling loop.
+
+    Streams SSE events so tool calls appear in real-time:
+      event: tool_call, each MCP tool invocation (immediate)
+      event: result, MCP response (hidden and allowed to expand)
+      event: error, on failure
+    """
     body = request.get_json()
     messages = body.get("messages", [])
 
@@ -265,56 +275,71 @@ def chat():
             "You are a specialized assistant that ONLY answers questions using the available tools. "
             "You MUST call at least one tool for every user question. "
             "Available tools: " + ", ".join(tool_names) + ". "
-            "If none of the tools can answer the question, respond EXACTLY with: "
-            "\"No estamos listos para responder tu pregunta, solo respondemos consultas sobre el BCIE.\"\n"
+            "If none of the tools can answer the question, respond with: "
+            "\"We don't have any internal tool to answer your question.\"\n"
             "NEVER answer from your own knowledge. ONLY use tool results."
         ),
     }
     messages = [system_msg] + messages
 
-    # Tool-calling loop
-    for _ in range(MAX_TOOL_ROUNDS):
-        try:
-            result = ai_chat_completion(messages, tools=openai_tools)
-        except httpx.HTTPStatusError as e:
-            return jsonify({"error": f"AI provider error: {e.response.status_code}"}), 502
-
-        choice = result["choices"][0]
-        message = choice["message"]
-
-        # If no tool calls, we're done
-        tool_calls = message.get("tool_calls")
-        if not tool_calls:
-            logger.info("AI final response (no tool calls)")
-            return jsonify({"reply": message.get("content", "")})
-
-        # Append assistant message with tool calls
-        logger.info(f"AI tool calls requested: {[tc['function']['name'] for tc in tool_calls]}")
-        messages.append(message)
-
-        # Execute each tool call via MCP
-        for tc in tool_calls:
-            fn = tc["function"]
-            tool_name = fn["name"]
+    def generate():
+        # Tool-calling loop
+        for _ in range(MAX_TOOL_ROUNDS):
             try:
-                tool_args = json.loads(fn["arguments"]) if fn["arguments"] else {}
-            except json.JSONDecodeError:
-                tool_args = {}
+                result = ai_chat_completion(messages, tools=openai_tools)
+            except httpx.HTTPStatusError as e:
+                yield sse_event("error", {"error": f"AI provider error: {e.response.status_code}"})
+                return
 
-            try:
-                tool_result = mcp_call_tool(tool_name, tool_args)
-            except Exception as e:
-                tool_result = f"Error calling tool: {e}"
+            choice = result["choices"][0]
+            message = choice["message"]
 
-            messages.append(
-                {
-                    "role": "tool",
-                    "tool_call_id": tc["id"],
-                    "content": tool_result,
-                }
-            )
+            # If no tool calls, we're done
+            tool_calls = message.get("tool_calls")
+            if not tool_calls:
+                logger.info("AI final response (no tool calls)")
+                yield sse_event("result", {"reply": message.get("content", "")})
+                return
 
-    return jsonify({"reply": "Maximum tool call rounds reached."})
+            # Append assistant message with tool calls
+            logger.info(f"AI tool calls requested: {[tc['function']['name'] for tc in tool_calls]}")
+            messages.append(message)
+
+            # Execute each tool call via MCP
+            for tc in tool_calls:
+                fn = tc["function"]
+                tool_name = fn["name"]
+                args = fn.get("arguments")
+                try:
+                    tool_args = json.loads(args) if args else {}
+                except json.JSONDecodeError:
+                    error = f"Invalid args: ({args}) for tool {tool_name}"
+                    yield sse_event("error", {"message": error})
+                    tool_args = {}
+
+                yield sse_event("tool_call", {
+                    "timestamp": datetime.now(timezone.utc).strftime("%H:%M:%S"),
+                    "tool": tool_name,
+                    "arguments": tool_args,
+                })
+
+                try:
+                    tool_result = mcp_call_tool(tool_name, tool_args)
+                except Exception as e:
+                    tool_result = f"Error calling tool: {e}"
+                    yield sse_event("error", {"message": tool_result})
+
+                messages.append(
+                    {
+                        "role": "tool",
+                        "tool_call_id": tc["id"],
+                        "content": tool_result,
+                    }
+                )
+
+        yield sse_event("error", {"message": "Maximum tool call rounds reached."})
+
+    return Response(generate(), mimetype="text/event-stream")
 
 
 # ---------------------------------------------------------------------------
