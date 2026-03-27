@@ -13,7 +13,9 @@ def parse_chart_response(data, response):
         "title": "Monthly Revenue",
         "labels": ["Jan", "Feb", "Mar"],
         "values": [100, 200, 150],
-        "beginAtZero": false (default true)
+        "beginAtZero": false (default true),
+        "color": "#75adec",
+        "borderColor": "#111050"
     }
     """
 

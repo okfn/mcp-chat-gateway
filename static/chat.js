@@ -33,8 +33,8 @@ function buildChart(chartData) {
         datasets: [{
           label: chartData.title || "",
           data: chartData.values || [],
-          backgroundColor: chartData.color || "#4e79a7",
-          borderColor: chartData.borderColor || chartData.color || "#3b6490",
+          backgroundColor: chartData.color || "#04498f",
+          borderColor: chartData.borderColor || chartData.color || "#090824",
           borderWidth: 1,
         }],
       },
