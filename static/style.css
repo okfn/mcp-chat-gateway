@@ -326,3 +326,17 @@ main {
 .msg.table tr:hover td {
   background: #85b8f0;
 }
+
+.msg.chart {
+  align-self: stretch;
+  max-width: 100%;
+  padding: 10px 14px;
+  background: #97c2f2;
+  color: #130436;
+  border: 1px solid #111050;
+}
+
+.msg.chart canvas {
+  background: #fff;
+  border-radius: 6px;
+}
