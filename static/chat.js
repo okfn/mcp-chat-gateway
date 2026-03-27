@@ -18,17 +18,55 @@ function buildTable(rows) {
   return table;
 }
 
+function buildChart(chartData) {
+  const wrapper = document.createElement("div");
+  wrapper.style.height = "600px";
+  const canvas = document.createElement("canvas");
+  wrapper.appendChild(canvas);
+  const beginAtZero = chartData.beginAtZero !== false;
+  // Chart.js needs the canvas in the DOM to size correctly, so we defer init
+  setTimeout(() => {
+    new Chart(canvas, {
+      type: chartData.type || "bar",
+      data: {
+        labels: chartData.labels || [],
+        datasets: [{
+          label: chartData.title || "",
+          data: chartData.values || [],
+          backgroundColor: chartData.color || "#4e79a7",
+          borderColor: chartData.borderColor || chartData.color || "#3b6490",
+          borderWidth: 1,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: !!chartData.title },
+        },
+        scales: {
+          y: { beginAtZero: beginAtZero },
+        },
+      },
+    });
+  }, 0);
+  return wrapper;
+}
+
 function addMessage(role, text) {
   const div = document.createElement("div");
   div.className = "msg " + role;
-  if (role === "force" || role === "table") {
+  if (role === "force" || role === "table" || role === "chart") {
     const title = document.createElement("div");
     title.className = "force-title";
-    title.textContent = role === "table" ? "MCP Tool (human) Table" : "MCP Tool (human) Message";
+    const titles = { table: "MCP Tool (human) Table", chart: "MCP Tool (human) Chart", force: "MCP Tool (human) Message" };
+    title.textContent = titles[role];
     div.appendChild(title);
   }
   if (role === "table" && Array.isArray(text)) {
     div.appendChild(buildTable(text));
+  } else if (role === "chart" && typeof text === "object") {
+    div.appendChild(buildChart(text));
   } else {
     div.appendChild(document.createTextNode(text));
   }
@@ -175,6 +213,15 @@ function handleSSEEvent(eventType, data) {
       addMessage("error", table_error);
     } else {
       addMessage("table", table_data);
+    }
+  } else if (eventType === "chart") {
+    // The MCP tool provides a chart to display (display-only, not part of conversation).
+    const chart_data = data.data || {};
+    const chart_error = data.error || null;
+    if (chart_error) {
+      addMessage("error", chart_error);
+    } else {
+      addMessage("chart", chart_data);
     }
   } else {
     // Unknown event type — show
