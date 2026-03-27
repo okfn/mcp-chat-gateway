@@ -6,11 +6,19 @@ Dependencies: flask, httpx
 AI provider is configurable via environment variables.
 Any OpenAI-compatible API works (DeepSeek, OpenAI, Ollama, etc).
 """
+
 from datetime import datetime, timezone
 import json
 import os
 import httpx
-from flask import Flask, Response, jsonify, request, send_from_directory
+from flask import (
+    Flask,
+    Response,
+    jsonify,
+    render_template,
+    request,
+    send_from_directory,
+)
 
 import settings
 from utils.debug import logger
@@ -47,7 +55,7 @@ def _mcp_headers():
 
 def _parse_mcp_response(resp):
     """Parse an MCP response, handling both JSON and SSE* formats.
-       * Server-sent events https://en.wikipedia.org/wiki/Server-sent_events
+    * Server-sent events https://en.wikipedia.org/wiki/Server-sent_events
     """
     content_type = resp.headers.get("content-type", "")
     if "text/event-stream" in content_type:
@@ -80,7 +88,6 @@ def mcp_initialize():
             #   Use case example: an MCP tool that generates a summary. Instead of doing it itself, the server says
             #   "send this text to your AI model and return what it says." This way the server
             #   doesn't need its own AI API key — it borrows the client's.
-
             "capabilities": {},
             "clientInfo": {"name": "OKFN MCP gateway", "version": "0.1"},
         },
@@ -226,6 +233,7 @@ def ai_chat_completion(messages, tools=None):
 # Routes
 # ---------------------------------------------------------------------------
 
+
 def sse_event(event, data):
     """Format a single SSE event string."""
     return f"event: {event}\ndata: {json.dumps(data)}\n\n"
@@ -276,7 +284,7 @@ def chat():
             "You MUST call at least one tool for every user question. "
             "Available tools: " + ", ".join(tool_names) + ". "
             "If none of the tools can answer the question, respond with: "
-            "\"We don't have any internal tool to answer your question.\"\n"
+            '"We don\'t have any internal tool to answer your question."\n'
             "NEVER answer from your own knowledge. ONLY use tool results."
         ),
     }
@@ -340,6 +348,18 @@ def chat():
         yield sse_event("error", {"message": "Maximum tool call rounds reached."})
 
     return Response(generate(), mimetype="text/event-stream")
+
+
+@app.route("/about")
+def about():
+    """Serve the about page with MCP tools information."""
+    try:
+        mcp_tools = mcp_list_tools()
+    except Exception as e:
+        logger.error(f"Failed to fetch MCP tools for about page: {e}")
+        mcp_tools = []
+
+    return render_template("about.html", tools=mcp_tools)
 
 
 # ---------------------------------------------------------------------------
