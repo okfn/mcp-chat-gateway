@@ -22,13 +22,24 @@ def parse_chart_response(data, response):
     pattern = r'<chart>(.*?)</chart>'
     matches = re.findall(pattern, response, re.DOTALL)
     if matches:
-        data['chart'] = matches[0].strip()
-        # Remove the <chart>...</chart> part from the response
+        # Remove all <chart>...</chart> from the response
         response = re.sub(pattern, '', response, flags=re.DOTALL).strip()
 
-        try:
-            data['chart_data'] = json.loads(data['chart'])
-        except json.JSONDecodeError:
+        # Parse all charts
+        charts = []
+        for match in matches:
+            try:
+                charts.append(json.loads(match.strip()))
+            except json.JSONDecodeError:
+                pass
+
+        if charts:
+            # Keep backward compat: first chart in chart/chart_data
+            data['chart'] = matches[0].strip()
+            data['chart_data'] = charts[0]
+            # All charts in charts list
+            data['charts'] = charts
+        else:
             data['chart_error'] = 'Error parsing chart JSON'
 
     return data, response
