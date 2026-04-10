@@ -53,6 +53,8 @@ function buildChart(chartData) {
   wrapper.appendChild(canvas);
   const beginAtZero = chartData.beginAtZero !== false;
   const isStacked = chartData.stacked && Array.isArray(chartData.datasets);
+  const chartType = chartData.type || "bar";
+  const isLine = chartType === "line";
 
   let datasets;
   if (isStacked) {
@@ -62,20 +64,51 @@ function buildChart(chartData) {
       backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
       borderWidth: 1,
     }));
+  } else if (Array.isArray(chartData.datasets) && chartData.datasets.length > 0) {
+    datasets = chartData.datasets.map((ds, i) => {
+      const color = CHART_COLORS[i % CHART_COLORS.length];
+      const base = {
+        label: ds.label || chartData.title || "",
+        data: ds.data || [],
+      };
+      if (isLine) {
+        base.borderColor = color;
+        base.backgroundColor = color + "33";
+        base.borderWidth = 2;
+        base.pointRadius = 4;
+        base.tension = 0.3;
+        base.fill = false;
+      } else {
+        base.backgroundColor = ds.color || color;
+        base.borderColor = ds.borderColor || color;
+        base.borderWidth = 1;
+      }
+      return base;
+    });
   } else {
-    datasets = [{
+    const base = {
       label: chartData.title || "",
       data: chartData.values || [],
-      backgroundColor: chartData.color || "#04498f",
-      borderColor: chartData.borderColor || chartData.color || "#090824",
-      borderWidth: 1,
-    }];
+    };
+    if (isLine) {
+      base.borderColor = "#04498f";
+      base.backgroundColor = "#04498f33";
+      base.borderWidth = 2;
+      base.pointRadius = 4;
+      base.tension = 0.3;
+      base.fill = false;
+    } else {
+      base.backgroundColor = chartData.color || "#04498f";
+      base.borderColor = chartData.borderColor || chartData.color || "#090824";
+      base.borderWidth = 1;
+    }
+    datasets = [base];
   }
 
   // Chart.js needs the canvas in the DOM to size correctly, so we defer init
   setTimeout(() => {
     new Chart(canvas, {
-      type: chartData.type || "bar",
+      type: chartType,
       data: {
         labels: chartData.labels || [],
         datasets: datasets,
@@ -89,7 +122,7 @@ function buildChart(chartData) {
             text: chartData.title,
             font: { size: 14 },
           } : { display: false },
-          legend: { display: isStacked || !!chartData.title },
+          legend: { display: isStacked || datasets.length > 1 || !!chartData.title },
         },
         scales: isStacked ? {
           x: { stacked: true },
