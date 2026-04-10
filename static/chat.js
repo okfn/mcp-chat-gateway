@@ -4,13 +4,34 @@ const sendBtn = document.getElementById("send");
 
 let conversation = [];
 
+function linkify(text) {
+  const urlRe = /(https?:\/\/[^\s<]+)/g;
+  const str = String(text);
+  if (!urlRe.test(str)) return null;
+  const frag = document.createDocumentFragment();
+  let last = 0;
+  str.replace(urlRe, (match, url, offset) => {
+    if (offset > last) frag.appendChild(document.createTextNode(str.slice(last, offset)));
+    const a = document.createElement("a");
+    a.href = url;
+    a.textContent = url;
+    a.target = "_blank";
+    a.rel = "noopener";
+    frag.appendChild(a);
+    last = offset + match.length;
+  });
+  if (last < str.length) frag.appendChild(document.createTextNode(str.slice(last)));
+  return frag;
+}
+
 function buildTable(rows) {
   const table = document.createElement("table");
   rows.forEach((row, i) => {
     const tr = document.createElement("tr");
     row.forEach((cell) => {
       const el = document.createElement(i === 0 ? "th" : "td");
-      el.textContent = cell;
+      const linked = linkify(cell);
+      if (linked) { el.appendChild(linked); } else { el.textContent = cell; }
       tr.appendChild(el);
     });
     table.appendChild(tr);
@@ -18,19 +39,95 @@ function buildTable(rows) {
   return table;
 }
 
+const CHART_COLORS = [
+  "#4e79a7", "#f28e2b", "#e15759", "#76b7b2",
+  "#59a14f", "#edc948", "#b07aa1", "#ff9da7",
+  "#9c755f", "#bab0ac", "#a0cbe8", "#ffbe7d",
+  "#8cd17d", "#b6992d", "#f1ce63", "#499894",
+];
+
+function buildChart(chartData) {
+  const wrapper = document.createElement("div");
+  wrapper.style.height = "600px";
+  const canvas = document.createElement("canvas");
+  wrapper.appendChild(canvas);
+  const beginAtZero = chartData.beginAtZero !== false;
+  const isStacked = chartData.stacked && Array.isArray(chartData.datasets);
+
+  let datasets;
+  if (isStacked) {
+    datasets = chartData.datasets.map((ds, i) => ({
+      label: ds.label || "",
+      data: ds.data || [],
+      backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
+      borderWidth: 1,
+    }));
+  } else {
+    datasets = [{
+      label: chartData.title || "",
+      data: chartData.values || [],
+      backgroundColor: chartData.color || "#04498f",
+      borderColor: chartData.borderColor || chartData.color || "#090824",
+      borderWidth: 1,
+    }];
+  }
+
+  // Chart.js needs the canvas in the DOM to size correctly, so we defer init
+  setTimeout(() => {
+    new Chart(canvas, {
+      type: chartData.type || "bar",
+      data: {
+        labels: chartData.labels || [],
+        datasets: datasets,
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          title: chartData.title ? {
+            display: true,
+            text: chartData.title,
+            font: { size: 14 },
+          } : { display: false },
+          legend: { display: isStacked || !!chartData.title },
+        },
+        scales: isStacked ? {
+          x: { stacked: true },
+          y: { stacked: true, beginAtZero: beginAtZero },
+        } : {
+          y: { beginAtZero: beginAtZero },
+        },
+      },
+    });
+  }, 0);
+  return wrapper;
+}
+
 function addMessage(role, text) {
   const div = document.createElement("div");
   div.className = "msg " + role;
-  if (role === "force" || role === "table") {
+  if (role === "force" || role === "table" || role === "chart") {
     const title = document.createElement("div");
     title.className = "force-title";
-    title.textContent = role === "table" ? "MCP Tool (human) Table" : "MCP Tool (human) Message";
+    const titles = { table: "MCP Tool (human) Table", chart: "MCP Tool (human) Chart", force: "MCP Tool (human) Message" };
+    title.textContent = titles[role];
     div.appendChild(title);
   }
   if (role === "table" && Array.isArray(text)) {
     div.appendChild(buildTable(text));
+  } else if (role === "chart" && typeof text === "object") {
+    div.appendChild(buildChart(text));
+  } else if ((role === "assistant" || role === "force") && typeof marked !== "undefined") {
+    const html = marked.parse(String(text));
+    const content = document.createElement("div");
+    content.className = "markdown";
+    content.innerHTML = html;
+    // Make all links open in new tab
+    content.querySelectorAll("a").forEach(a => { a.target = "_blank"; a.rel = "noopener"; });
+    div.appendChild(content);
   } else {
-    div.appendChild(document.createTextNode(text));
+    const linked = linkify(text);
+    if (linked) { div.appendChild(linked); } else { div.appendChild(document.createTextNode(text)); }
   }
   // Insert before the typing indicator so it always stays at the bottom
   const typing = document.getElementById("typing");
@@ -175,6 +272,15 @@ function handleSSEEvent(eventType, data) {
       addMessage("error", table_error);
     } else {
       addMessage("table", table_data);
+    }
+  } else if (eventType === "chart") {
+    // The MCP tool provides a chart to display (display-only, not part of conversation).
+    const chart_data = data.data || {};
+    const chart_error = data.error || null;
+    if (chart_error) {
+      addMessage("error", chart_error);
+    } else {
+      addMessage("chart", chart_data);
     }
   } else {
     // Unknown event type — show
