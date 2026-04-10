@@ -4,11 +4,41 @@ const sendBtn = document.getElementById("send");
 
 let conversation = [];
 
+function buildTable(rows) {
+  const table = document.createElement("table");
+  rows.forEach((row, i) => {
+    const tr = document.createElement("tr");
+    row.forEach((cell) => {
+      const el = document.createElement(i === 0 ? "th" : "td");
+      el.textContent = cell;
+      tr.appendChild(el);
+    });
+    table.appendChild(tr);
+  });
+  return table;
+}
+
 function addMessage(role, text) {
   const div = document.createElement("div");
   div.className = "msg " + role;
-  div.textContent = text;
-  messagesEl.appendChild(div);
+  if (role === "force" || role === "table") {
+    const title = document.createElement("div");
+    title.className = "force-title";
+    title.textContent = role === "table" ? "MCP Tool (human) Table" : "MCP Tool (human) Message";
+    div.appendChild(title);
+  }
+  if (role === "table" && Array.isArray(text)) {
+    div.appendChild(buildTable(text));
+  } else {
+    div.appendChild(document.createTextNode(text));
+  }
+  // Insert before the typing indicator so it always stays at the bottom
+  const typing = document.getElementById("typing");
+  if (typing) {
+    messagesEl.insertBefore(div, typing);
+  } else {
+    messagesEl.appendChild(div);
+  }
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
@@ -16,7 +46,12 @@ function showTyping() {
   const div = document.createElement("div");
   div.className = "typing";
   div.id = "typing";
-  div.textContent = "Thinking...";
+  const label = document.createElement("span");
+  label.textContent = "Thinking...";
+  const bar = document.createElement("div");
+  bar.className = "typing-bar";
+  div.appendChild(label);
+  div.appendChild(bar);
   messagesEl.appendChild(div);
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
@@ -128,6 +163,19 @@ function handleSSEEvent(eventType, data) {
     const reply = data.reply || "(no response)";
     addMessage("assistant", reply);
     conversation.push({ role: "assistant", content: reply });
+  } else if (eventType === "force") {
+    // The MCP tool forces us to display something to the user (display-only, not part of conversation).
+    const forced_message = data.message || "(no response)";
+    addMessage("force", forced_message);
+  } else if (eventType === "table") {
+    // The MCP tool provides a table to display (display-only, not part of conversation).
+    const table_data = data.data || [];
+    const table_error = data.error || null;
+    if (table_error) {
+      addMessage("error", table_error);
+    } else {
+      addMessage("table", table_data);
+    }
   } else {
     // Unknown event type — show
     hideTyping();
@@ -143,7 +191,11 @@ function addToolCall(tc) {
     ? JSON.stringify(tc.arguments)
     : "(no args)";
   entry.textContent = `[${tc.timestamp}] ${tc.tool}  ${args}`;
-  messagesEl.appendChild(entry);
-  // ensure scroll to bottom
+  const typing = document.getElementById("typing");
+  if (typing) {
+    messagesEl.insertBefore(entry, typing);
+  } else {
+    messagesEl.appendChild(entry);
+  }
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }

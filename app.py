@@ -23,6 +23,8 @@ from flask import (
 import settings
 from utils.debug import logger
 
+from tools_response_parse import parse_tool_response
+
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -337,11 +339,17 @@ def chat():
                     tool_result = f"Error calling tool: {e}"
                     yield sse_event("error", {"message": tool_result})
 
+                data, final_response = parse_tool_response(tool_result)
+                if data.get("force"):
+                    yield sse_event("force", {"message": data["force"]})
+                if data.get("table"):
+                    yield sse_event("table", {"data": data.get("table_data"), "error": data.get("table_error")})
+
                 messages.append(
                     {
                         "role": "tool",
                         "tool_call_id": tc["id"],
-                        "content": tool_result,
+                        "content": final_response,
                     }
                 )
 
