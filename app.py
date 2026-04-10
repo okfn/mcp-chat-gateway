@@ -344,6 +344,8 @@ def chat():
                     yield sse_event("force", {"message": data["force"]})
                 if data.get("table"):
                     yield sse_event("table", {"data": data.get("table_data"), "error": data.get("table_error")})
+                for chart_item in data.get("charts", []):
+                    yield sse_event("chart", {"data": chart_item, "error": None})
 
                 messages.append(
                     {
