@@ -1,7 +1,4 @@
-from tools_response_parse.force import parse_force_response
-from tools_response_parse.table import parse_table_response
-from tools_response_parse.chart import parse_chart_response
-
+import json
 
 def parse_tool_response(response):
     """
@@ -9,23 +6,21 @@ def parse_tool_response(response):
     If the MCP tool creators send specific instruction we want to be able to parse it.
     The IA is not trustworthy, we want to give some power to MCP tool creators.
 
-    All parsers will pass data: dict, response: str
+    MCP has structured output so we need to parse here the ToolOutput to meet the
+    requirements of the UI.
+
     """
+    response_dict = json.loads(response)
+
     data = {}
-    final_response = response
-    # ============= Force ========================
-    # MCP toool creators can force to print something in the screen to help users
-    data, final_response = parse_force_response(data, response)
-
-    # ============= Tables ========================
-    # MCP tool creators can send data for us to render tables.
-    data, final_response = parse_table_response(data, final_response)
-
-    # ============= Charts ========================
-    # MCP tool creators can send data for us to render charts.
-    data, final_response = parse_chart_response(data, final_response)
-
-    # ============= Downloads ========================
-    # TODO
-
+    final_response = ""
+    if response_dict.get("table"):
+        data["table"] = True
+        data["table_data"] = response_dict.get("table")
+    if response_dict.get("force"):
+        data["force"] = response_dict.get("force")
+    if response_dict.get("chart"):
+        data["charts"] = [response_dict.get("chart")]
+    if response_dict.get("content"):
+        final_response = response_dict["content"]
     return data, final_response
