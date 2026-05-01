@@ -23,11 +23,14 @@ but should work with any MCP server that implements the spec.
 
 ### Development
 
+Recommended to use `uv` as a package manager.
+
 ```bash
 # Create a virtual environment and install dependencies
-python -m venv .venv
+uv sync
+
+# Activate the virtual environment
 source .venv/bin/activate
-pip install -r requirements.txt
 
 # Configure your settings (choose one):
 #   1. Edit local_settings.py with your AI_API_KEY and other overrides
