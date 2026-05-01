@@ -51,46 +51,6 @@ header {
   gap: 12px;
 }
 
-.msg {
-  max-width: 75%;
-  padding: 10px 14px;
-  border-radius: 12px;
-  line-height: 1.5;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  flex-shrink: 0;
-}
-
-.msg.user {
-  align-self: flex-end;
-  background: #1a1a2e;
-  color: #fff;
-}
-
-.msg.assistant {
-  align-self: flex-start;
-  background: #fff;
-  color: #222;
-  border: 1px solid #ddd;
-}
-
-.msg.error {
-  align-self: center;
-  background: #fee;
-  color: #900;
-  border: 1px solid #fcc;
-  font-size: 14px;
-}
-
-.msg.tool-info {
-  align-self: center;
-  background: #eef6ff;
-  color: #456;
-  border: 1px solid #cde;
-  font-size: 13px;
-  max-width: 90%;
-}
-
 #input-area {
   display: flex;
   gap: 8px;
@@ -271,6 +231,51 @@ main {
 .about-section a:hover {
   text-decoration: underline;
 }
+
+.msg summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0;
+  margin: 0 0 8px;
+}
+
+.msg summary::-webkit-details-marker {
+  display: none;
+}
+
+.msg summary::before {
+  content: "▶";
+  font-size: 10px;
+  transition: transform 0.2s;
+  display: inline-block;
+}
+
+.msg[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.msg summary::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  opacity: 0.3;
+}
+
+.msg.user summary { color: rgba(255,255,255,0.8); }
+.msg.user summary::after { background: rgba(255,255,255,0.3); }
+
+.msg.assistant summary { color: #888; }
+.msg.assistant summary::after { background: #ccc; }
+
+.msg.error summary { color: #900; }
+.msg.error summary::after { background: #fcc; }
 
 .force-title {
   font-size: 11px;
