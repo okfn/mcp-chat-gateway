@@ -137,15 +137,20 @@ function buildChart(chartData) {
 }
 
 function addMessage(role, text) {
-  const div = document.createElement("div");
+  const div = document.createElement("details");
   div.className = "msg " + role;
+  div.open = true;
+
+  const title = document.createElement("summary");
   if (role === "force" || role === "table" || role === "chart") {
-    const title = document.createElement("div");
-    title.className = "force-title";
     const titles = { table: "MCP Tool (human) Table", chart: "MCP Tool (human) Chart", force: "MCP Tool (human) Message" };
     title.textContent = titles[role];
-    div.appendChild(title);
+  } else {
+    const labels = { user: "You", assistant: "Assistant", error: "Error" };
+    title.className = "msg-summary msg-summary-" + role;
+    title.textContent = labels[role] || role;
   }
+  div.appendChild(title);
   if (role === "table" && Array.isArray(text)) {
     div.appendChild(buildTable(text));
   } else if (role === "chart" && typeof text === "object") {
