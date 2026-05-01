@@ -143,7 +143,6 @@ function addMessage(role, text) {
 
   const title = document.createElement("summary");
   if (role === "force" || role === "table" || role === "chart") {
-    title.className = "force-title";
     const titles = { table: "MCP Tool (human) Table", chart: "MCP Tool (human) Chart", force: "MCP Tool (human) Message" };
     title.textContent = titles[role];
   } else {

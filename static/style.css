@@ -51,6 +51,44 @@ header {
   gap: 12px;
 }
 
+.msg {
+  border-radius: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  padding: 10px 14px;
+}
+
+.msg.user {
+  align-self: flex-end;
+  background: #1a1a2e;
+  color: #fff;
+}
+
+.msg.assistant {
+  align-self: flex-start;
+  background: #fff;
+  color: #222;
+  border: 1px solid #ddd;
+}
+
+.msg.error {
+  align-self: center;
+  background: #fee;
+  color: #900;
+  border: 1px solid #fcc;
+  font-size: 14px;
+}
+
+.msg.tool-info {
+  align-self: center;
+  background: #eef6ff;
+  color: #456;
+  border: 1px solid #cde;
+  font-size: 13px;
+  max-width: 90%;
+}
+
 #input-area {
   display: flex;
   gap: 8px;
@@ -234,56 +272,19 @@ main {
 
 .msg summary {
   cursor: pointer;
-  list-style: none;
-  display: flex;
-  align-items: center;
   gap: 6px;
   font-size: 12px;
   font-weight: 600;
-  text-transform: uppercase;
   letter-spacing: 0.03em;
-  padding: 0;
-  margin: 0 0 8px;
-}
-
-.msg summary::-webkit-details-marker {
-  display: none;
-}
-
-.msg summary::before {
-  content: "▶";
-  font-size: 10px;
-  transition: transform 0.2s;
-  display: inline-block;
-}
-
-.msg[open] summary::before {
-  transform: rotate(90deg);
-}
-
-.msg summary::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  opacity: 0.3;
+  font-style: italic;
+  margin-bottom: 5px;
 }
 
 .msg.user summary { color: rgba(255,255,255,0.8); }
 .msg.user summary::after { background: rgba(255,255,255,0.3); }
 
-.msg.assistant summary { color: #888; }
-.msg.assistant summary::after { background: #ccc; }
-
 .msg.error summary { color: #900; }
 .msg.error summary::after { background: #fcc; }
-
-.force-title {
-  font-size: 11px;
-  font-weight: bold;
-  margin-bottom: 6px;
-  background-color: #75adec;
-  color: #130436;
-}
 
 .msg.force {
   align-self: stretch;
@@ -294,13 +295,10 @@ main {
 }
 
 .msg.table {
-  align-self: stretch;
   max-width: 100%;
-  padding: 0;
   background: #97c2f2;
   color: #130436;
   border: 1px solid #111050;
-  overflow-x: auto;
 }
 
 .msg.table table {
@@ -309,6 +307,7 @@ main {
   font-size: 14px;
   display: table;
   white-space: normal;
+  border: 1px solid #75adec;
 }
 
 .msg.table th,
@@ -316,10 +315,6 @@ main {
   padding: 8px 12px;
   text-align: left;
   border-bottom: 1px solid #75adec;
-}
-
-.msg.table .force-title {
-  padding: 8px 12px 4px;
 }
 
 .msg.table th {
@@ -335,7 +330,6 @@ main {
 .msg.chart {
   align-self: stretch;
   max-width: 100%;
-  padding: 10px 14px;
   background: #97c2f2;
   color: #130436;
   border: 1px solid #111050;
