@@ -235,7 +235,7 @@ def sse_event(event, data):
 @app.route("/")
 def index():
     """Serve the chat HTML page."""
-    return send_from_directory(os.path.dirname(__file__), "index.html")
+    return send_from_directory(os.path.dirname(__file__), "templates/index.html")
 
 
 @app.route("/chat", methods=["POST"])
@@ -354,15 +354,20 @@ def chat():
 
 @app.route("/about")
 def about():
-    """Serve the about page with MCP tools information."""
+    """Serve the about page with the Pilot information."""
+    return render_template("about.html")
+
+
+@app.route("/how-to")
+def how_to():
+    """Serve the How to page with MCP tools information."""
     try:
         mcp_tools = mcp_list_tools()
     except Exception as e:
         logger.error(f"Failed to fetch MCP tools for about page: {e}")
         mcp_tools = []
 
-    return render_template("about.html", tools=mcp_tools)
-
+    return render_template("how_to.html", tools=mcp_tools)
 
 # ---------------------------------------------------------------------------
 # Main

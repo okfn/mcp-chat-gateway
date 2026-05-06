@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About - MCP Chat Gateway</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header>
+  <nav class="nav">
+    <div class="nav-title">
+      <a href="/" class="nav-link">Chat</a>
+    </div>
+    <div class="nav-links">
+      <a href="/how-to" class="nav-link">How to</a>
+      <a href="/about" class="nav-link">About</a>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <section class="about-section">
+    <h1>About This Chat Interface</h1>
+
+    <h2>How It Works</h2>
+    <p>This is a chat that answers questions <strong>exclusively</strong> using available MCP tools.</p>
+
+    <h2>How to Use</h2>
+    <p>Type your question in the input field at the bottom. The AI will automatically determine which tools to call based on your question and provide answers based solely on the tool results.</p>
+
+    <h2>What to Expect</h2>
+    <ul>
+      <li>The AI <strong>must call at least one tool</strong> for every question you ask</li>
+      <li>The AI <strong>never answers from its own "knowledge"</strong> — only uses tool results</li>
+      <li>If no tool can answer your question, you will see this response: <em>"We don't have any internal tool to answer your question."</em></li>
+    </ul>
+
+    <h2>Structured Content</h2>
+    <p> The chat interface has 5 types of outputs:</p>
+    <p>
+      <ul>
+        <li><strong>Assistant</strong>: What the AI has decided to respond with all the information.</li>
+        <li><strong>Table</strong>: Raw data from the source (returned by the MCP).</li>
+        <li><strong>Chart</strong>: An interactive visualization (returned by the MCP).</li>
+        <li><strong>Foce</strong>: A messaged written by the tool developer that it is not processed by the LLM.</li>
+        <li><strong>Source</strong>: A link to the source of the data used to provide the response. </li>
+      </ul>
+    </p>
+  </section>
+
+  <section class="about-section">
+    <h1>Available MCP Tools</h1>
+    <p>The following tools list is the information available on the MCP.</p>
+    <p>You can use this list as a guideline to understand what type of questions to ask and the capabilities of the chat.</p>
+    {% if tools %}
+      {% for tool in tools %}
+      <details class="tool-details">
+        <summary>{{ tool.name }}</summary>
+        <p class="tool-description">{{ tool.description }}</p>
+      </details>
+      {% endfor %}
+    {% else %}
+      <p>No tools available at this time. Please check if the MCP server is running.</p>
+    {% endif %}
+  </section>
+
+  <section class="about-section">
+    <h1>Technical Details</h1>
+    <p>For more information on technical implementations you can visit the following links:</p>
+    <p>
+      <ul>
+        <li>OKFN MCP Server: <a href="https://github.com/okfn/mcp-ckan">The repository</a> for the MCP server.</li>
+        <li>Chat Interface: <a href="https://github.com/okfn/mcp-chat-gateway">The repository</a> for this Chat Interface.</li>
+      </ul>
+  </section>
+
+  <section class="about-section logos">
+    <a href="https://okfn.org"><img src="static/lg-okfn.svg" width="200px"></a>
+  </section>
+</main>
+
+</body>
+</html>

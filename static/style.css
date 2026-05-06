@@ -14,6 +14,14 @@ header {
   padding: 12px 20px;
 }
 
+.alert-message {
+  text-align: center;
+  font-style: italic;
+  font-size: 12px;
+  padding: 10px 0px;
+  background: lightpink;
+}
+
 .nav {
   display: flex;
   justify-content: space-between;
@@ -212,6 +220,11 @@ main {
 
 .about-section li {
   margin-bottom: 8px;
+}
+
+.about-section.logos {
+  display: flex;
+  justify-content: center;
 }
 
 .tool-details {
