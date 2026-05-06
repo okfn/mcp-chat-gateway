@@ -14,6 +14,14 @@ header {
   padding: 12px 20px;
 }
 
+.alert-message {
+  text-align: center;
+  font-style: italic;
+  font-size: 12px;
+  padding: 10px 0px;
+  background: lightpink;
+}
+
 .nav {
   display: flex;
   justify-content: space-between;
