@@ -235,7 +235,7 @@ def sse_event(event, data):
 @app.route("/")
 def index():
     """Serve the chat HTML page."""
-    return send_from_directory(os.path.dirname(__file__), "index.html")
+    return send_from_directory(os.path.dirname(__file__), "templates/index.html")
 
 
 @app.route("/chat", methods=["POST"])
