@@ -214,6 +214,11 @@ main {
   margin-bottom: 8px;
 }
 
+.about-section.logos {
+  display: flex;
+  justify-content: center;
+}
+
 .tool-details {
   background: #fff;
   border: 1px solid #ddd;
