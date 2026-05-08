@@ -186,15 +186,22 @@ def mcp_tools_to_openai_format(mcp_tools):
 # ---------------------------------------------------------------------------
 
 
-def ai_chat_completion(messages, tools=None):
-    """Send a chat completion request to the AI provider."""
+def ai_chat_completion(messages, tools=None, tool_choice="auto"):
+    """Send a chat completion request to the AI provider.
+
+    tool_choice:
+      - "required": force the model to call at least one tool. Use on the
+        first turn so the model never improvises without grounding.
+      - "auto": let the model decide. Use after a tool result is in the
+        history so the model can synthesise a final text reply.
+    """
     payload = {
         "model": settings.AI_MODEL,
         "messages": messages,
     }
     if tools:
         payload["tools"] = tools
-        payload["tool_choice"] = "auto"
+        payload["tool_choice"] = tool_choice
 
     url = f"{settings.AI_BASE_URL}/chat/completions"
     req_headers = {
@@ -276,18 +283,25 @@ def chat():
             "You are a specialized assistant that ONLY answers questions using the available tools. "
             "You MUST call at least one tool for every user question. "
             "Available tools: " + ", ".join(tool_names) + ". "
-            "If none of the tools can answer the question, respond with: "
-            '"We don\'t have any internal tool to answer your question."\n'
-            "NEVER answer from your own knowledge. ONLY use tool results."
+            "If none of the available tools can answer the question, "
+            "call the `no_tool_disponible` tool with a short reason "
+            "explaining why no other tool fits — do NOT answer from your "
+            "own knowledge under any circumstance.\n"
+            "After tool results are returned, synthesise a concise reply "
+            "in the user's language using ONLY those results."
         ),
     }
     messages = [system_msg] + messages
 
     def generate():
-        # Tool-calling loop
-        for _ in range(MAX_TOOL_ROUNDS):
+        # Tool-calling loop. First round forces a tool call; later rounds
+        # let the model produce a final text reply once it has tool results.
+        for round_idx in range(MAX_TOOL_ROUNDS):
+            tool_choice = "required" if round_idx == 0 and openai_tools else "auto"
             try:
-                result = ai_chat_completion(messages, tools=openai_tools)
+                result = ai_chat_completion(
+                    messages, tools=openai_tools, tool_choice=tool_choice,
+                )
             except httpx.HTTPStatusError as e:
                 yield sse_event("error", {"error": f"AI provider error: {e.response.status_code}"})
                 return
