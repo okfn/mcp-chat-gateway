@@ -46,6 +46,50 @@ const CHART_COLORS = [
   "#8cd17d", "#b6992d", "#f1ce63", "#499894",
 ];
 
+// Chart.js plugin: draw percentage labels on top of pie/doughnut slices.
+// Skips slices smaller than 3% to avoid clutter. White text with a dark
+// outline so it stays readable on any slice color.
+const piePercentPlugin = {
+  id: "piePercent",
+  afterDatasetsDraw(chart) {
+    const type = chart.config.type;
+    if (type !== "pie" && type !== "doughnut") return;
+    const dataset = chart.data.datasets[0];
+    if (!dataset) return;
+    const values = (dataset.data || []).map((v) => Number(v) || 0);
+    const total = values.reduce((s, v) => s + v, 0);
+    if (!total) return;
+    const meta = chart.getDatasetMeta(0);
+    const { ctx } = chart;
+    ctx.save();
+    ctx.font = "bold 12px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    meta.data.forEach((arc, i) => {
+      const pct = (values[i] / total) * 100;
+      if (pct < 3) return;
+      const { x, y, startAngle, endAngle, outerRadius, innerRadius } = arc.getProps(
+        ["x", "y", "startAngle", "endAngle", "outerRadius", "innerRadius"],
+        true,
+      );
+      const midAngle = (startAngle + endAngle) / 2;
+      const radius = (innerRadius + outerRadius) / 2;
+      const labelX = x + Math.cos(midAngle) * radius;
+      const labelY = y + Math.sin(midAngle) * radius;
+      const text = pct.toFixed(1) + "%";
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.65)";
+      ctx.strokeText(text, labelX, labelY);
+      ctx.fillStyle = "#fff";
+      ctx.fillText(text, labelX, labelY);
+    });
+    ctx.restore();
+  },
+};
+if (typeof Chart !== "undefined") {
+  Chart.register(piePercentPlugin);
+}
+
 function buildChart(chartData) {
   const wrapper = document.createElement("div");
   wrapper.style.height = "600px";
@@ -66,21 +110,26 @@ function buildChart(chartData) {
     }));
   } else if (Array.isArray(chartData.datasets) && chartData.datasets.length > 0) {
     datasets = chartData.datasets.map((ds, i) => {
-      const color = CHART_COLORS[i % CHART_COLORS.length];
+      const fallback = CHART_COLORS[i % CHART_COLORS.length];
       const base = {
         label: ds.label || chartData.title || "",
         data: ds.data || [],
       };
       if (isLine) {
-        base.borderColor = color;
-        base.backgroundColor = color + "33";
+        const lineColor = ds.borderColor || ds.color || fallback;
+        base.borderColor = lineColor;
+        // For lines, fade the fill if backgroundColor wasn't explicit.
+        base.backgroundColor = ds.backgroundColor
+          || (typeof lineColor === "string" ? lineColor + "33" : lineColor);
         base.borderWidth = 2;
         base.pointRadius = 4;
         base.tension = 0.3;
         base.fill = false;
       } else {
-        base.backgroundColor = ds.color || color;
-        base.borderColor = ds.borderColor || color;
+        // For pie/doughnut, ds.backgroundColor is an array (one color per
+        // slice). For bar, it's a string. Honor whatever the tool sent.
+        base.backgroundColor = ds.backgroundColor || ds.color || fallback;
+        base.borderColor = ds.borderColor || ds.color || fallback;
         base.borderWidth = 1;
       }
       return base;
