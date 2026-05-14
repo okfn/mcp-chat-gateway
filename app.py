@@ -383,6 +383,50 @@ def how_to():
 
     return render_template("how_to.html", tools=mcp_tools)
 
+
+@app.route("/tools")
+def list_tools():
+    """Return the MCP tool catalog grouped by plugin, for the home-page drawer.
+
+    The MCP server attaches ``_meta.plugin`` and ``_meta.plugin_metadata`` to
+    every tool it registers through a plugin sub-registry — the latter is a
+    dict whose currently-defined key is ``urls`` (more fields may be added
+    server-side later).  This endpoint is a thin grouper; it does not know
+    about specific plugins.  Each plugin group carries every URL the plugin
+    declared (Homepage, Documentation, Repository, Issues, Changelog, …) and
+    the UI renders one badge per URL.  Tools without any plugin meta land
+    in a synthetic "core" group.
+    """
+    try:
+        mcp_tools = mcp_list_tools()
+    except Exception as e:
+        logger.error(f"Failed to fetch MCP tools for /tools: {e}")
+        return jsonify({"groups": [], "error": str(e)}), 502
+
+    groups: dict[str, dict] = {}
+    for tool in mcp_tools:
+        meta = tool.get("_meta") or {}
+        plugin = meta.get("plugin") or "core"
+        plugin_metadata = meta.get("plugin_metadata") or {}
+        group = groups.setdefault(
+            plugin,
+            {"plugin": plugin, "urls": plugin_metadata.get("urls") or [], "tools": []},
+        )
+        display_name = tool["name"]
+        if plugin != "core" and display_name.startswith(plugin + "_"):
+            display_name = display_name[len(plugin) + 1:]
+        group["tools"].append({
+            "name": tool["name"],
+            "display_name": display_name,
+            "description": tool.get("description", ""),
+        })
+
+    # Stable order: core first if present, then plugins alphabetically.
+    ordered = sorted(groups.values(), key=lambda g: (g["plugin"] != "core", g["plugin"]))
+    for group in ordered:
+        group["tools"].sort(key=lambda t: t["display_name"])
+    return jsonify({"groups": ordered})
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------

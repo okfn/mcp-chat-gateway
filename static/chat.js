@@ -392,3 +392,135 @@ function addToolCall(tc) {
   }
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
+
+// ---------------------------------------------------------------------------
+// Tools drawer
+// ---------------------------------------------------------------------------
+
+const toolsToggle = document.getElementById("tools-toggle");
+const toolsClose = document.getElementById("tools-close");
+const toolsDrawer = document.getElementById("tools-drawer");
+const toolsOverlay = document.getElementById("tools-overlay");
+const toolsContent = document.getElementById("tools-content");
+
+let toolsLoaded = false;
+
+function prettyPluginName(plugin) {
+  if (plugin === "core") return "Core";
+  return plugin
+    .replace(/^mcp_ckan_/, "")
+    .split("_")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+// Normalise a URL label to a CSS-class-safe slug so per-label styling
+// (different colour per badge kind) can hook off the rendered class.
+function labelSlug(label) {
+  return String(label || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "other";
+}
+
+function renderToolsCatalog(catalog) {
+  toolsContent.innerHTML = "";
+  if (!catalog.groups || catalog.groups.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "tools-empty";
+    empty.textContent = "No tools available. Is the MCP server running?";
+    toolsContent.appendChild(empty);
+    return;
+  }
+  catalog.groups.forEach((group) => {
+    const section = document.createElement("section");
+    section.className = "tools-group";
+
+    const header = document.createElement("header");
+    header.className = "tools-group-header";
+    const title = document.createElement("h3");
+    title.textContent = prettyPluginName(group.plugin);
+    header.appendChild(title);
+    section.appendChild(header);
+
+    if (Array.isArray(group.urls) && group.urls.length > 0) {
+      const badges = document.createElement("div");
+      badges.className = "tools-group-badges";
+      group.urls.forEach((u) => {
+        if (!u.url) return;
+        const link = document.createElement("a");
+        link.href = u.url;
+        link.target = "_blank";
+        link.rel = "noopener";
+        link.className = `tools-badge tools-badge--${labelSlug(u.label)}`;
+        link.textContent = u.label;
+        link.title = u.url;
+        badges.appendChild(link);
+      });
+      if (badges.childNodes.length > 0) section.appendChild(badges);
+    }
+
+    const list = document.createElement("ul");
+    list.className = "tools-list";
+    group.tools.forEach((tool) => {
+      const item = document.createElement("li");
+      const details = document.createElement("details");
+      details.className = "tools-tool";
+      const summary = document.createElement("summary");
+      const pretty = tool.display_name.replace(/_/g, " ");
+      summary.textContent = pretty.charAt(0).toUpperCase() + pretty.slice(1);
+      details.appendChild(summary);
+      const desc = document.createElement("pre");
+      desc.className = "tools-tool-desc";
+      desc.textContent = tool.description || "(no description)";
+      details.appendChild(desc);
+      item.appendChild(details);
+      list.appendChild(item);
+    });
+    section.appendChild(list);
+    toolsContent.appendChild(section);
+  });
+}
+
+async function loadToolsCatalog() {
+  try {
+    const resp = await fetch("/tools");
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const catalog = await resp.json();
+    renderToolsCatalog(catalog);
+    toolsLoaded = true;
+  } catch (err) {
+    toolsContent.innerHTML = "";
+    const error = document.createElement("p");
+    error.className = "tools-error";
+    error.textContent = `Failed to load tools: ${err.message}`;
+    toolsContent.appendChild(error);
+  }
+}
+
+function openToolsDrawer() {
+  toolsDrawer.classList.add("open");
+  toolsDrawer.setAttribute("aria-hidden", "false");
+  toolsToggle.setAttribute("aria-expanded", "true");
+  toolsOverlay.hidden = false;
+  if (!toolsLoaded) loadToolsCatalog();
+}
+
+function closeToolsDrawer() {
+  toolsDrawer.classList.remove("open");
+  toolsDrawer.setAttribute("aria-hidden", "true");
+  toolsToggle.setAttribute("aria-expanded", "false");
+  toolsOverlay.hidden = true;
+}
+
+if (toolsToggle && toolsClose && toolsDrawer && toolsOverlay) {
+  toolsToggle.addEventListener("click", () => {
+    if (toolsDrawer.classList.contains("open")) closeToolsDrawer();
+    else openToolsDrawer();
+  });
+  toolsClose.addEventListener("click", closeToolsDrawer);
+  toolsOverlay.addEventListener("click", closeToolsDrawer);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && toolsDrawer.classList.contains("open")) closeToolsDrawer();
+  });
+}
