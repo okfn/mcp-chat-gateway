@@ -1,0 +1,65 @@
+# Portuguese (pt) translations for the Open Data Chat gateway.
+# See en.yaml for the canonical source — keep keys in sync with that file.
+
+
+# Barra de navegação superior, presente em todas as páginas.
+nav:
+  # Nome do produto (canto superior esquerdo). É marca — normalmente não se traduz.
+  brand: Chat de Dados Abertos
+  # Botão que abre a gaveta lateral de ferramentas.
+  tools: Ferramentas
+  howTo: Como usar
+  about: Sobre
+
+
+# Banner que avisa que o projeto está em alfa. Inclui link para /how-to.
+alert:
+  alpha: 'Este projeto ainda está em alfa. Consulte a seção <a href="/how-to">Como usar</a> para um guia.'
+
+
+# Gaveta lateral direita com as ferramentas MCP agrupadas por plugin.
+drawer:
+  title: Ferramentas disponíveis
+  # Mostrado enquanto /tools está sendo carregado.
+  loading: Carregando ferramentas…
+
+
+# Tela inicial (antes da primeira pergunta).
+landing:
+  # Título principal. Curto, acionável.
+  title: Pergunte aos dados abertos
+  # Subtítulo. Duas frases no máximo; explica a proposta de valor.
+  tagline: 'Respostas reais sobre dados públicos reais. Cada resposta é fundamentada em uma chamada de ferramenta — nunca inventada pelo modelo.'
+  # Placeholder dentro do campo de busca vazio.
+  placeholder: Faça uma pergunta sobre dados abertos...
+  # Texto do botão de envio.
+  ask: Perguntar
+
+  # Mini-links abaixo da barra de busca.
+  meta:
+    prompt: É sua primeira vez?
+    howTo: Como funciona
+    tools: Ver todas as ferramentas
+    about: Sobre este piloto
+
+  # Cartões de plugins (um por fonte de dados conectada).
+  plugins:
+    loading: Carregando fontes de dados…
+    error: 'Não foi possível carregar as fontes de dados. O servidor MCP está rodando?'
+    empty: Ainda não há fontes de dados disponíveis.
+    # Rótulo acima dos chips de perguntas-exemplo de cada cartão.
+    sampleLabel: Experimente uma destas
+    # Quantidade de ferramentas no cartão. {n} é o número.
+    toolsCount: '{n} ferramentas'
+    # Forma singular quando há exatamente uma.
+    toolsCountOne: 1 ferramenta
+
+  # Rodapé inferior. O link abre a gaveta de ferramentas.
+  footer:
+    tech: 'Desenvolvido com o servidor MCP da OKFN. As ferramentas e datasets vêm de plugins independentes (veja as <a href="#" id="landing-footer-tools">fontes de dados</a> abaixo).'
+
+
+# Visão de chat — depois que o usuário envia a primeira mensagem.
+chat:
+  placeholder: Digite uma mensagem...
+  send: Enviar

@@ -1,0 +1,75 @@
+# English translations for the Open Data Chat gateway.
+#
+# Translators: copy this file to es.yaml / pt.yaml / xx.yaml and translate the
+# values on the right. Comments are notes that explain WHERE each string shows
+# up in the UI — they don't appear to the user.
+#
+# Keys are nested for readability but flatten to dot-notation at runtime
+# (e.g. `landing.plugins.empty`). Those flat names must match the data-i18n=""
+# attributes in the HTML templates and the t("...") calls in chat.js.
+#
+# HTML is allowed in values (rendered via innerHTML). Keep the same tag
+# structure as the English source so links/IDs continue to work.
+
+
+# Top navigation bar shown on every page.
+nav:
+  # Product name shown in the top-left. Treat as a brand — usually NOT translated.
+  brand: Open Data Chat
+  # Button that opens the right-side tools drawer.
+  tools: Tools
+  howTo: How to
+  about: About
+
+
+# Alpha-stage banner across the top of every page. Contains a link to /how-to.
+alert:
+  alpha: 'This project is still in alpha. See the <a href="/how-to">How to</a> section for a guide.'
+
+
+# Right-side drawer that lists every MCP tool grouped by plugin.
+drawer:
+  title: Available tools
+  # Shown while the /tools endpoint is being fetched.
+  loading: Loading tools…
+
+
+# Landing page — what users see before they ask their first question.
+landing:
+  # Big hero headline. Keep it short and action-oriented.
+  title: Ask the open data
+  # Subtitle under the hero. Two sentences max; explains the value prop.
+  tagline: 'Real answers from real public datasets. Every reply is grounded in a tool call — never invented by the model.'
+  # Placeholder shown inside the empty search input.
+  placeholder: Ask a question about open data...
+  # Label on the submit button next to the search input.
+  ask: Ask
+
+  # Small links/labels under the search bar.
+  meta:
+    prompt: New here?
+    howTo: How it works
+    tools: Browse all tools
+    about: About this pilot
+
+  # The plugin cards section — one card per connected MCP plugin.
+  plugins:
+    loading: Loading data sources…
+    error: 'Could not load data sources. Is the MCP server running?'
+    empty: No data sources available yet.
+    # Section label above the clickable sample-question chips on each card.
+    sampleLabel: Try one of these
+    # Tool-count badge on each card. {n} is the number of tools.
+    toolsCount: '{n} tools'
+    # Singular form when there is exactly one tool.
+    toolsCountOne: 1 tool
+
+  # Bottom-of-page footer. Contains a link that opens the tools drawer.
+  footer:
+    tech: 'Powered by the OKFN MCP server. Tools and datasets come from independent plugins (see the <a href="#" id="landing-footer-tools">data sources</a> below).'
+
+
+# Chat view — shown once the user has sent their first message.
+chat:
+  placeholder: Type a message...
+  send: Send

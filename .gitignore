@@ -4,3 +4,7 @@ local_settings.py
 
 debug/
 !debug/README.md
+
+# Operator-specific string overrides (rebrand, custom copy).
+# See static/i18n/overrides-sample.yaml for the format.
+static/i18n/overrides.yaml
