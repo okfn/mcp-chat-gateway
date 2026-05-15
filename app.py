@@ -345,7 +345,7 @@ def chat():
                     yield sse_event("error", {"message": tool_result})
 
                 final_response = tool_result.get("content")[0].get("text")
-                data = tool_result.get("structuredContent")
+                data = tool_result.get("structuredContent") or {}
                 if data.get("force"):
                     yield sse_event("force", {"message": data["force"]})
                 if data.get("table"):
@@ -410,7 +410,13 @@ def list_tools():
         plugin_metadata = meta.get("plugin_metadata") or {}
         group = groups.setdefault(
             plugin,
-            {"plugin": plugin, "urls": plugin_metadata.get("urls") or [], "tools": []},
+            {
+                "plugin": plugin,
+                "description": plugin_metadata.get("description") or "",
+                "sample_questions": plugin_metadata.get("sample_questions") or [],
+                "urls": plugin_metadata.get("urls") or [],
+                "tools": [],
+            },
         )
         display_name = tool["name"]
         if plugin != "core" and display_name.startswith(plugin + "_"):
