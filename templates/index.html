@@ -14,6 +14,7 @@
       <a href="/" class="nav-link">Chat</a>
     </div>
     <div class="nav-links">
+      <button id="tools-toggle" class="nav-link nav-button" type="button" aria-controls="tools-drawer" aria-expanded="false">Tools</button>
       <a href="/how-to" class="nav-link">How to</a>
       <a href="/about" class="nav-link">About</a>
     </div>
@@ -23,6 +24,17 @@
 <div class="alert-message">
   This project is still in alpha version and under active development. See the <a href='/how-to'>How to</a> section for a guide.
 </div>
+
+<aside id="tools-drawer" class="tools-drawer" aria-hidden="true">
+  <div class="tools-drawer-header">
+    <h2>Available tools</h2>
+    <button id="tools-close" class="tools-close" type="button" aria-label="Close tools drawer">&times;</button>
+  </div>
+  <div id="tools-content" class="tools-content">
+    <p class="tools-loading">Loading tools…</p>
+  </div>
+</aside>
+<div id="tools-overlay" class="tools-overlay" hidden></div>
 
 <div id="messages"></div>
 
