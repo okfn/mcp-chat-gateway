@@ -3,48 +3,102 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chat</title>
+<title>Open Data Chat</title>
 <link rel="stylesheet" href="/static/style.css">
 </head>
-<body>
+<body class="landing">
 
 <header>
   <nav class="nav">
     <div class="nav-title">
-      <a href="/" class="nav-link">Chat</a>
+      <a href="/" class="nav-link" data-i18n="nav.brand">Open Data Chat</a>
     </div>
     <div class="nav-links">
-      <button id="tools-toggle" class="nav-link nav-button" type="button" aria-controls="tools-drawer" aria-expanded="false">Tools</button>
-      <a href="/how-to" class="nav-link">How to</a>
-      <a href="/about" class="nav-link">About</a>
+      <button id="tools-toggle" class="nav-link nav-button" type="button" aria-controls="tools-drawer" aria-expanded="false" data-i18n="nav.tools">Tools</button>
+      <a href="/how-to" class="nav-link" data-i18n="nav.howTo">How to</a>
+      <a href="/about" class="nav-link" data-i18n="nav.about">About</a>
+      <div class="lang-switcher" role="group" aria-label="Language">
+        <button type="button" class="lang-btn" data-lang-switch="en" aria-pressed="false">EN</button>
+        <button type="button" class="lang-btn" data-lang-switch="es" aria-pressed="false">ES</button>
+        <button type="button" class="lang-btn" data-lang-switch="pt" aria-pressed="false">PT</button>
+      </div>
     </div>
   </nav>
 </header>
 
-<div class="alert-message">
-  This project is still in alpha version and under active development. See the <a href='/how-to'>How to</a> section for a guide.
+<div class="alert-message" data-i18n="alert.alpha">
+  This project is still in alpha. See the <a href="/how-to">How to</a> section for a guide.
 </div>
 
 <aside id="tools-drawer" class="tools-drawer" aria-hidden="true">
   <div class="tools-drawer-header">
-    <h2>Available tools</h2>
+    <h2 data-i18n="drawer.title">Available tools</h2>
     <button id="tools-close" class="tools-close" type="button" aria-label="Close tools drawer">&times;</button>
   </div>
   <div id="tools-content" class="tools-content">
-    <p class="tools-loading">Loading tools…</p>
+    <p class="tools-loading" data-i18n="drawer.loading">Loading tools…</p>
   </div>
 </aside>
 <div id="tools-overlay" class="tools-overlay" hidden></div>
 
+<!-- Landing view: shown until the first message is sent -->
+<section id="landing">
+  <div class="landing-hero">
+    <h1 class="landing-title" data-i18n="landing.title">Ask the open data</h1>
+    <p class="landing-tagline" data-i18n="landing.tagline">
+      Real answers from real public datasets. Every reply is grounded in a tool call &mdash; never invented by the model.
+    </p>
+
+    <form id="landing-form" class="landing-search" autocomplete="off">
+      <textarea
+        id="landing-input"
+        class="landing-search-input"
+        rows="1"
+        autofocus
+        data-i18n-attr="placeholder"
+        data-i18n="landing.placeholder"
+        placeholder="Ask a question about open data..."></textarea>
+      <button type="submit" class="landing-search-btn" data-i18n="landing.ask">Ask</button>
+    </form>
+
+    <p class="landing-meta">
+      <span data-i18n="landing.metaPrompt">New here?</span>
+      <a href="/how-to" data-i18n="landing.metaHowTo">How it works</a>
+      <span class="dot">·</span>
+      <button type="button" class="link-button" id="landing-open-tools" data-i18n="landing.metaTools">Browse all tools</button>
+      <span class="dot">·</span>
+      <a href="/about" data-i18n="landing.metaAbout">About this pilot</a>
+    </p>
+  </div>
+
+  <section id="landing-plugins" class="landing-plugins" aria-live="polite">
+    <p class="landing-plugins-loading" data-i18n="landing.plugins.loading">Loading data sources…</p>
+  </section>
+
+  <footer class="landing-footer">
+    <p data-i18n="landing.footer.tech">
+      Powered by the OKFN MCP server. Tools and datasets come from independent plugins (see the <a href="#" id="landing-footer-tools">data sources</a> below).
+    </p>
+  </footer>
+</section>
+
+<!-- Chat view: shown once the conversation starts -->
 <div id="messages"></div>
 
 <div id="input-area">
-  <textarea id="input" rows="1" placeholder="Type a message..." autofocus></textarea>
-  <button id="send">Send</button>
+  <textarea
+    id="input"
+    rows="1"
+    data-i18n-attr="placeholder"
+    data-i18n="chat.placeholder"
+    placeholder="Type a message..."></textarea>
+  <button id="send" data-i18n="chat.send">Send</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+<script src="/static/i18n.js"></script>
 <script src="/static/chat.js"></script>
 
 </body>
