@@ -4,6 +4,12 @@ const sendBtn = document.getElementById("send");
 
 let conversation = [];
 
+// i18n: gateway-owned strings live in /static/i18n/*.yaml.
+// Logic and the language switcher are in /static/i18n.js (loaded before
+// this file in each template). We just alias the public API.
+const t = window.i18n.t;
+const applyI18n = window.i18n.applyAll;
+
 function linkify(text) {
   const urlRe = /(https?:\/\/[^\s<]+)/g;
   const str = String(text);
@@ -524,3 +530,181 @@ if (toolsToggle && toolsClose && toolsDrawer && toolsOverlay) {
     if (e.key === "Escape" && toolsDrawer.classList.contains("open")) closeToolsDrawer();
   });
 }
+
+// ---------------------------------------------------------------------------
+// Landing screen — centered welcome, sample questions, mode transition.
+// On the first send we swap body class from "landing" to "chat" and let the
+// existing chat layout take over. The landing input forwards its text to the
+// docked chat input and reuses sendMessage().
+// ---------------------------------------------------------------------------
+
+const landingEl = document.getElementById("landing");
+const landingForm = document.getElementById("landing-form");
+const landingInput = document.getElementById("landing-input");
+const landingPlugins = document.getElementById("landing-plugins");
+const landingOpenTools = document.getElementById("landing-open-tools");
+
+function enterChatMode() {
+  document.body.classList.remove("landing");
+  document.body.classList.add("chat");
+  // Focus the docked input so subsequent typing lands there.
+  if (inputEl) {
+    inputEl.focus();
+  }
+}
+
+function submitFromLanding(text) {
+  const trimmed = (text || "").trim();
+  if (!trimmed) return;
+  // Hand the text to the docked input and trigger the existing flow.
+  inputEl.value = trimmed;
+  enterChatMode();
+  sendMessage();
+}
+
+if (landingForm && landingInput) {
+  landingInput.addEventListener("input", () => {
+    landingInput.style.height = "auto";
+    landingInput.style.height = Math.min(landingInput.scrollHeight, 160) + "px";
+  });
+
+  landingInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      submitFromLanding(landingInput.value);
+    }
+  });
+
+  landingForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    submitFromLanding(landingInput.value);
+  });
+}
+
+if (landingOpenTools) {
+  landingOpenTools.addEventListener("click", (e) => {
+    e.preventDefault();
+    openToolsDrawer();
+  });
+}
+
+// The footer link is rendered via i18n innerHTML, so we delegate from the
+// landing root to catch the click regardless of re-renders.
+if (landingEl) {
+  landingEl.addEventListener("click", (e) => {
+    const target = e.target;
+    if (target && target.id === "landing-footer-tools") {
+      e.preventDefault();
+      openToolsDrawer();
+    }
+  });
+}
+
+// Render plugin cards on the landing from /tools (groups + sample_questions).
+
+function renderLandingPlugins(catalog) {
+  if (!landingPlugins) return;
+  landingPlugins.innerHTML = "";
+  const groups = (catalog && catalog.groups) || [];
+
+  // Skip the synthetic "core" group on the landing — it carries no plugin
+  // metadata and would render as an empty card. It still shows in the drawer.
+  const visible = groups.filter((g) => g.plugin !== "core");
+
+  if (visible.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "landing-plugins-loading";
+    empty.textContent = t("landing.plugins.empty");
+    landingPlugins.appendChild(empty);
+    return;
+  }
+
+  visible.forEach((group) => {
+    const card = document.createElement("article");
+    card.className = "plugin-card";
+
+    const head = document.createElement("header");
+    head.className = "plugin-card-head";
+    const title = document.createElement("h3");
+    title.className = "plugin-card-title";
+    title.textContent = prettyPluginName(group.plugin);
+    head.appendChild(title);
+
+    const toolCount = Array.isArray(group.tools) ? group.tools.length : 0;
+    if (toolCount > 0) {
+      const count = document.createElement("span");
+      count.className = "plugin-card-count";
+      count.textContent = toolCount === 1
+        ? t("landing.plugins.toolsCountOne")
+        : t("landing.plugins.toolsCount", { n: toolCount });
+      head.appendChild(count);
+    }
+    card.appendChild(head);
+
+    if (group.description) {
+      const desc = document.createElement("p");
+      desc.className = "plugin-card-desc";
+      desc.textContent = group.description;
+      card.appendChild(desc);
+    }
+
+    const samples = Array.isArray(group.sample_questions) ? group.sample_questions : [];
+    if (samples.length > 0) {
+      const label = document.createElement("p");
+      label.className = "plugin-card-section-label";
+      label.textContent = t("landing.plugins.sampleLabel");
+      card.appendChild(label);
+
+      const chips = document.createElement("div");
+      chips.className = "plugin-card-chips";
+      samples.forEach((q) => {
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "chip";
+        chip.textContent = q;
+        chip.addEventListener("click", () => submitFromLanding(q));
+        chips.appendChild(chip);
+      });
+      card.appendChild(chips);
+    }
+
+    if (Array.isArray(group.urls) && group.urls.length > 0) {
+      const footer = document.createElement("div");
+      footer.className = "plugin-card-footer";
+      group.urls.forEach((u) => {
+        if (!u.url) return;
+        const link = document.createElement("a");
+        link.href = u.url;
+        link.target = "_blank";
+        link.rel = "noopener";
+        link.className = `tools-badge tools-badge--${labelSlug(u.label)}`;
+        link.textContent = u.label;
+        link.title = u.url;
+        footer.appendChild(link);
+      });
+      if (footer.childNodes.length > 0) card.appendChild(footer);
+    }
+
+    landingPlugins.appendChild(card);
+  });
+}
+
+async function loadLandingPlugins() {
+  if (!landingPlugins) return;
+  try {
+    const resp = await fetch("/tools");
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const catalog = await resp.json();
+    renderLandingPlugins(catalog);
+  } catch (err) {
+    landingPlugins.innerHTML = "";
+    const error = document.createElement("p");
+    error.className = "landing-plugins-error";
+    error.textContent = t("landing.plugins.error");
+    landingPlugins.appendChild(error);
+  }
+}
+
+// Wait for i18n to finish loading so chip labels / loading text are translated
+// the first time the cards appear, not after a flash of English.
+if (landingEl) window.i18n.ready.then(loadLandingPlugins);
