@@ -11,11 +11,16 @@
 <header>
   <nav class="nav">
     <div class="nav-title">
-      <a href="/" class="nav-link">Chat</a>
+      <a href="/" class="nav-link" data-i18n="nav.brand">Open Data Chat</a>
     </div>
     <div class="nav-links">
-      <a href="/how-to" class="nav-link">How to</a>
-      <a href="/about" class="nav-link">About</a>
+      <a href="/how-to" class="nav-link" data-i18n="nav.howTo">How to</a>
+      <a href="/about" class="nav-link" data-i18n="nav.about">About</a>
+      <div class="lang-switcher" role="group" aria-label="Language">
+        <button type="button" class="lang-btn" data-lang-switch="en" aria-pressed="false">EN</button>
+        <button type="button" class="lang-btn" data-lang-switch="es" aria-pressed="false">ES</button>
+        <button type="button" class="lang-btn" data-lang-switch="pt" aria-pressed="false">PT</button>
+      </div>
     </div>
   </nav>
 </header>
@@ -80,6 +85,9 @@
     <a href="https://okfn.org"><img src="static/lg-okfn.svg" width="200px"></a>
   </section>
 </main>
+
+<script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+<script src="/static/i18n.js"></script>
 
 </body>
 </html>

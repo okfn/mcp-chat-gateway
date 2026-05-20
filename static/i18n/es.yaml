@@ -1,0 +1,65 @@
+# Spanish (es) translations for the Open Data Chat gateway.
+# See en.yaml for the canonical source — keep keys in sync with that file.
+
+
+# Barra de navegación superior, presente en todas las páginas.
+nav:
+  # Nombre del producto (arriba a la izquierda). Es marca — normalmente no se traduce.
+  brand: Chat de Datos Abiertos
+  # Botón que abre el panel lateral con las herramientas.
+  tools: Herramientas
+  howTo: Cómo usar
+  about: Acerca de
+
+
+# Banner que avisa que el proyecto está en alfa. Incluye un link a /how-to.
+alert:
+  alpha: 'Este proyecto está en fase alfa. Consulte la sección <a href="/how-to">Cómo usar</a> para una guía.'
+
+
+# Panel lateral derecho con la lista de herramientas MCP agrupadas por plugin.
+drawer:
+  title: Herramientas disponibles
+  # Mientras se carga el endpoint /tools.
+  loading: Cargando herramientas…
+
+
+# Pantalla de inicio (antes de la primera pregunta).
+landing:
+  # Título principal. Cortó, accionable.
+  title: Preguntale a los datos abiertos
+  # Subtítulo. Dos frases como máximo; explica el valor.
+  tagline: 'Respuestas reales sobre datos públicos reales. Cada respuesta está respaldada por una herramienta — nunca inventada por el modelo.'
+  # Placeholder dentro del campo de búsqueda vacío.
+  placeholder: Hacé una pregunta sobre datos abiertos...
+  # Texto del botón de enviar.
+  ask: Preguntar
+
+  # Mini-links debajo del buscador.
+  meta:
+    prompt: '¿Es tu primera vez?'
+    howTo: Cómo funciona
+    tools: Ver todas las herramientas
+    about: Sobre este piloto
+
+  # Tarjetas de plugins (una por cada fuente de datos conectada).
+  plugins:
+    loading: Cargando fuentes de datos…
+    error: 'No se pudieron cargar las fuentes de datos. ¿Está corriendo el servidor MCP?'
+    empty: Todavía no hay fuentes de datos disponibles.
+    # Etiqueta sobre los chips de preguntas-ejemplo en cada tarjeta.
+    sampleLabel: Probá una de estas
+    # Cantidad de herramientas en la tarjeta. {n} es el número.
+    toolsCount: '{n} herramientas'
+    # Forma singular cuando hay exactamente una.
+    toolsCountOne: 1 herramienta
+
+  # Pie de página inferior. El link abre el panel de herramientas.
+  footer:
+    tech: 'Construido con el servidor MCP de OKFN. Las herramientas y datasets provienen de plugins independientes (ver las <a href="#" id="landing-footer-tools">fuentes de datos</a> abajo).'
+
+
+# Vista de chat — una vez que el usuario envió la primera pregunta.
+chat:
+  placeholder: Escribí un mensaje...
+  send: Enviar

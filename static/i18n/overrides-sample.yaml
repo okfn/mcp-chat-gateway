@@ -1,0 +1,42 @@
+# overrides-sample.yaml — example operator override file.
+#
+# To use this for your deployment:
+#   1. Copy this file to overrides.yaml in the same directory.
+#   2. Uncomment the keys you want to override and edit the values.
+#   3. Reload the page — overrides are fetched fresh on each load.
+#
+# overrides.yaml is gitignored, so your customisations stay out of the
+# upstream repo. This sample IS checked in so you can see the shape.
+#
+# How it works:
+#   - The structure mirrors en.yaml / es.yaml / pt.yaml exactly.
+#     Copy a section from a bundled locale file and edit the value.
+#   - Top-level keys are locale codes (en / es / pt / …).
+#   - Inside each locale, follow the same nested structure as the
+#     bundled YAML — anything you don't override keeps the bundled value.
+#   - HTML is allowed in values (rendered via innerHTML).
+#
+# A common use case is rebranding without forking the repo:
+# replace the product name everywhere it appears.
+
+
+en:
+  # nav:
+  #   brand: Acme Data Hub
+  # landing:
+  #   title: Ask Acme's open data
+  #   tagline: 'Acme answers, grounded in Acme datasets.'
+  #   footer:
+  #     tech: 'Powered by Acme Insights.'
+
+es:
+  # nav:
+  #   brand: Chat Datos Acme
+  # landing:
+  #   title: Preguntale a los datos de Acme
+
+pt:
+  # nav:
+  #   brand: Chat Dados Acme
+  # landing:
+  #   title: Pergunte aos dados da Acme
