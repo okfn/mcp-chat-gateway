@@ -8,6 +8,8 @@ nav:
   brand: Chat de Datos Abiertos
   # Botón que abre el panel lateral con las herramientas.
   tools: Herramientas
+  # Botón que abre el panel lateral con los documentos de referencia.
+  resources: Documentos
   howTo: Cómo usar
   about: Acerca de
 
@@ -22,6 +24,17 @@ drawer:
   title: Herramientas disponibles
   # Mientras se carga el endpoint /tools.
   loading: Cargando herramientas…
+
+
+# Panel lateral derecho con los recursos MCP (PDFs, documentos, CSVs) agrupados
+# por plugin. La IA NO los lee automáticamente — esto es para que la persona los
+# explore o descargue, y para citarlos desde las tools.
+resourcesDrawer:
+  title: Documentos de referencia
+  loading: Cargando documentos…
+  empty: Todavía no hay documentos de referencia.
+  open: Abrir
+  source: Fuente original
 
 
 # Pantalla de inicio (antes de la primera pregunta).

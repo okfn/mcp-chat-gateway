@@ -8,6 +8,8 @@ nav:
   brand: Chat de Dados Abertos
   # Botão que abre a gaveta lateral de ferramentas.
   tools: Ferramentas
+  # Botão que abre a gaveta lateral de documentos de referência.
+  resources: Documentos
   howTo: Como usar
   about: Sobre
 
@@ -22,6 +24,17 @@ drawer:
   title: Ferramentas disponíveis
   # Mostrado enquanto /tools está sendo carregado.
   loading: Carregando ferramentas…
+
+
+# Gaveta lateral direita com os recursos MCP (PDFs, documentos, CSVs)
+# agrupados por plugin. A IA NÃO os lê automaticamente — esta é uma
+# superfície humana de navegação/download e um alvo de citação.
+resourcesDrawer:
+  title: Documentos de referência
+  loading: Carregando documentos…
+  empty: Ainda não há documentos de referência.
+  open: Abrir
+  source: Fonte original
 
 
 # Tela inicial (antes da primeira pergunta).

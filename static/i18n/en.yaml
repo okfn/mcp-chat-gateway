@@ -18,6 +18,8 @@ nav:
   brand: Open Data Chat
   # Button that opens the right-side tools drawer.
   tools: Tools
+  # Button that opens the right-side resources drawer (PDFs, docs, …).
+  resources: Resources
   howTo: How to
   about: About
 
@@ -32,6 +34,19 @@ drawer:
   title: Available tools
   # Shown while the /tools endpoint is being fetched.
   loading: Loading tools…
+
+
+# Right-side drawer that lists every MCP resource (reference docs/PDFs/CSVs)
+# grouped by plugin. Resources are NOT auto-read by the AI — this is a human
+# browse/download surface and a citation target.
+resourcesDrawer:
+  title: Reference documents
+  loading: Loading resources…
+  empty: No reference documents available yet.
+  # Link that opens the resource through the gateway proxy (in-browser preview / download).
+  open: Open
+  # Link that follows the publisher's original URL when a resource declares one.
+  source: Original source
 
 
 # Landing page — what users see before they ask their first question.

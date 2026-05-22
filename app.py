@@ -7,9 +7,12 @@ AI provider is configurable via environment variables.
 Any OpenAI-compatible API works (DeepSeek, OpenAI, Ollama, etc).
 """
 
+import base64
 from datetime import datetime, timezone
 import json
 import os
+from urllib.parse import urlparse
+
 import httpx
 from flask import (
     Flask,
@@ -162,6 +165,56 @@ def mcp_call_tool(name, arguments):
 
     result = data.get("result", {})
     return result
+
+
+def mcp_list_resources():
+    """Fetch the resource catalog from the MCP server.
+
+    Resources are documents/PDFs/CSVs each plugin exposes via the MCP
+    ``resources/list`` method. They are NOT auto-consumed by the LLM —
+    the gateway lists them for users to browse and download.
+    """
+    global _mcp_session_id
+    if not _mcp_session_id:
+        mcp_initialize()
+
+    req_body = {"jsonrpc": "2.0", "id": 3, "method": "resources/list", "params": {}}
+    req_headers = _mcp_headers()
+    resp = httpx.post(settings.MCP_URL, json=req_body, headers=req_headers, timeout=30)
+    data = _parse_mcp_response(resp)
+
+    logger.debug({
+        "label": "mcp_list_resources",
+        "request": {"url": settings.MCP_URL, "headers": req_headers, "body": req_body},
+        "response": {"status": resp.status_code, "headers": dict(resp.headers), "body": data},
+    })
+
+    return data.get("result", {}).get("resources", [])
+
+
+def mcp_read_resource(uri):
+    """Fetch a resource's contents from the MCP server (lazy).
+
+    Returns the list of ``contents`` blocks from ``resources/read``: each is
+    a dict with either a ``text`` field (for text mime types) or a ``blob``
+    field (base64-encoded bytes) plus its ``mimeType``.
+    """
+    global _mcp_session_id
+    if not _mcp_session_id:
+        mcp_initialize()
+
+    req_body = {"jsonrpc": "2.0", "id": 4, "method": "resources/read", "params": {"uri": uri}}
+    req_headers = _mcp_headers()
+    resp = httpx.post(settings.MCP_URL, json=req_body, headers=req_headers, timeout=120)
+    data = _parse_mcp_response(resp)
+
+    logger.debug({
+        "label": f"mcp_read_resource_{uri}",
+        "request": {"url": settings.MCP_URL, "headers": req_headers, "body": req_body},
+        "response": {"status": resp.status_code, "headers": dict(resp.headers)},
+    })
+
+    return data.get("result", {}).get("contents", [])
 
 
 def mcp_tools_to_openai_format(mcp_tools):
@@ -432,6 +485,97 @@ def list_tools():
     for group in ordered:
         group["tools"].sort(key=lambda t: t["display_name"])
     return jsonify({"groups": ordered})
+
+@app.route("/resources")
+def list_resources_endpoint():
+    """Return the MCP resource catalog grouped by plugin, for the resources drawer.
+
+    The base server stamps ``_meta.plugin`` on every resource it registers
+    through a plugin sub-registry (mirror of how tools work). This endpoint
+    is a thin grouper that the UI can render without knowing about specific
+    plugins.  Each resource carries its mime type, optional size, and any
+    custom annotations the plugin attached (``source_url``, ``publisher``,
+    ``year``, …) so the gateway can show an "Open original" link, a
+    publisher badge, etc.
+    """
+    try:
+        resources = mcp_list_resources()
+    except Exception as e:
+        logger.error(f"Failed to fetch MCP resources for /resources: {e}")
+        return jsonify({"groups": [], "error": str(e)}), 502
+
+    groups: dict[str, dict] = {}
+    for r in resources:
+        meta = r.get("_meta") or {}
+        plugin = meta.get("plugin") or "core"
+        plugin_metadata = meta.get("plugin_metadata") or {}
+        annotations = meta.get("annotations") or {}
+        group = groups.setdefault(
+            plugin,
+            {
+                "plugin": plugin,
+                "description": plugin_metadata.get("description") or "",
+                "urls": plugin_metadata.get("urls") or [],
+                "resources": [],
+            },
+        )
+        group["resources"].append({
+            "uri": r["uri"],
+            "name": r.get("name") or r["uri"],
+            "description": r.get("description", ""),
+            "mime_type": r.get("mimeType", ""),
+            "size": r.get("size"),
+            "source_url": annotations.get("source_url"),
+            "publisher": annotations.get("publisher"),
+            "year": annotations.get("year"),
+            "language": annotations.get("language"),
+            "topics": annotations.get("topics") or [],
+        })
+
+    ordered = sorted(groups.values(), key=lambda g: (g["plugin"] != "core", g["plugin"]))
+    for group in ordered:
+        group["resources"].sort(key=lambda r: r["name"].lower())
+    return jsonify({"groups": ordered})
+
+
+@app.route("/resource")
+def get_resource_endpoint():
+    """Proxy a single MCP resource's content, with its declared mime type.
+
+    Query string: ``?uri=<uri>``. For text resources, returns the raw text.
+    For binary resources (PDF, image, …), returns the decoded bytes with a
+    ``Content-Disposition: inline`` so the browser previews or downloads
+    based on the mime type. Filename is derived from the URI's last segment.
+    """
+    uri = request.args.get("uri")
+    if not uri:
+        return jsonify({"error": "missing uri"}), 400
+
+    try:
+        contents = mcp_read_resource(uri)
+    except Exception as e:
+        logger.error(f"Failed to read MCP resource {uri}: {e}")
+        return jsonify({"error": str(e)}), 502
+
+    if not contents:
+        return jsonify({"error": "no contents returned"}), 404
+
+    first = contents[0]
+    mime = first.get("mimeType", "application/octet-stream")
+    parsed = urlparse(uri)
+    filename = (parsed.path or "resource").rsplit("/", 1)[-1] or "resource"
+
+    if "text" in first:
+        return Response(first["text"], mimetype=mime)
+    if "blob" in first:
+        raw = base64.b64decode(first["blob"])
+        return Response(
+            raw,
+            mimetype=mime,
+            headers={"Content-Disposition": f'inline; filename="{filename}"'},
+        )
+    return jsonify({"error": "unrecognized content shape"}), 500
+
 
 # ---------------------------------------------------------------------------
 # Main
