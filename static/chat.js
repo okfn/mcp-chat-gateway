@@ -532,6 +532,155 @@ if (toolsToggle && toolsClose && toolsDrawer && toolsOverlay) {
 }
 
 // ---------------------------------------------------------------------------
+// Resources drawer - same pattern as tools, but for MCP resources (docs/PDFs).
+// Each plugin can register reference documents the user can browse/download.
+// The LLM does NOT autodiscover them; this drawer is the human surface.
+// ---------------------------------------------------------------------------
+
+const resourcesToggle = document.getElementById("resources-toggle");
+const resourcesClose = document.getElementById("resources-close");
+const resourcesDrawer = document.getElementById("resources-drawer");
+const resourcesOverlay = document.getElementById("resources-overlay");
+const resourcesContent = document.getElementById("resources-content");
+
+let resourcesLoaded = false;
+
+function humanSize(bytes) {
+  if (bytes == null) return "";
+  const units = ["B", "KB", "MB", "GB"];
+  let n = bytes, i = 0;
+  while (n >= 1024 && i < units.length - 1) { n /= 1024; i += 1; }
+  return `${n.toFixed(n >= 10 || i === 0 ? 0 : 1)} ${units[i]}`;
+}
+
+function renderResourcesCatalog(catalog) {
+  resourcesContent.innerHTML = "";
+  const groups = catalog.groups || [];
+  if (!groups.length) {
+    const empty = document.createElement("p");
+    empty.className = "tools-empty";
+    empty.textContent =
+      (window.i18n && window.i18n.t("resourcesDrawer.empty")) ||
+      "No reference documents available yet.";
+    resourcesContent.appendChild(empty);
+    return;
+  }
+  groups.forEach((group) => {
+    const section = document.createElement("section");
+    section.className = "tools-group";
+
+    const header = document.createElement("header");
+    header.className = "tools-group-header";
+    const title = document.createElement("h3");
+    title.textContent = prettyPluginName(group.plugin);
+    header.appendChild(title);
+    section.appendChild(header);
+
+    const list = document.createElement("ul");
+    list.className = "tools-list";
+    group.resources.forEach((r) => {
+      const item = document.createElement("li");
+      const details = document.createElement("details");
+      details.className = "tools-tool";
+
+      const summary = document.createElement("summary");
+      summary.textContent = r.name;
+      details.appendChild(summary);
+
+      if (r.description) {
+        const desc = document.createElement("pre");
+        desc.className = "tools-tool-desc";
+        desc.textContent = r.description;
+        details.appendChild(desc);
+      }
+
+      const metaRow = document.createElement("div");
+      metaRow.className = "tools-group-badges";
+      const facts = [];
+      if (r.publisher) facts.push(r.publisher);
+      if (r.year) facts.push(String(r.year));
+      if (r.mime_type) facts.push(r.mime_type);
+      if (r.size != null) facts.push(humanSize(r.size));
+      facts.forEach((text) => {
+        const badge = document.createElement("span");
+        badge.className = "tools-badge tools-badge--meta";
+        badge.textContent = text;
+        metaRow.appendChild(badge);
+      });
+
+      const openLink = document.createElement("a");
+      openLink.href = `/resource?uri=${encodeURIComponent(r.uri)}`;
+      openLink.target = "_blank";
+      openLink.rel = "noopener";
+      openLink.className = "tools-badge tools-badge--open";
+      openLink.textContent =
+        (window.i18n && window.i18n.t("resourcesDrawer.open")) || "Open";
+      metaRow.appendChild(openLink);
+
+      if (r.source_url) {
+        const src = document.createElement("a");
+        src.href = r.source_url;
+        src.target = "_blank";
+        src.rel = "noopener";
+        src.className = "tools-badge tools-badge--source";
+        src.textContent =
+          (window.i18n && window.i18n.t("resourcesDrawer.source")) || "Original source";
+        metaRow.appendChild(src);
+      }
+
+      details.appendChild(metaRow);
+      item.appendChild(details);
+      list.appendChild(item);
+    });
+    section.appendChild(list);
+    resourcesContent.appendChild(section);
+  });
+}
+
+async function loadResourcesCatalog() {
+  try {
+    const resp = await fetch("/resources");
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const catalog = await resp.json();
+    renderResourcesCatalog(catalog);
+    resourcesLoaded = true;
+  } catch (err) {
+    resourcesContent.innerHTML = "";
+    const error = document.createElement("p");
+    error.className = "tools-error";
+    error.textContent = `Failed to load resources: ${err.message}`;
+    resourcesContent.appendChild(error);
+  }
+}
+
+function openResourcesDrawer() {
+  resourcesDrawer.classList.add("open");
+  resourcesDrawer.setAttribute("aria-hidden", "false");
+  resourcesToggle.setAttribute("aria-expanded", "true");
+  resourcesOverlay.hidden = false;
+  if (!resourcesLoaded) loadResourcesCatalog();
+}
+
+function closeResourcesDrawer() {
+  resourcesDrawer.classList.remove("open");
+  resourcesDrawer.setAttribute("aria-hidden", "true");
+  resourcesToggle.setAttribute("aria-expanded", "false");
+  resourcesOverlay.hidden = true;
+}
+
+if (resourcesToggle && resourcesClose && resourcesDrawer && resourcesOverlay) {
+  resourcesToggle.addEventListener("click", () => {
+    if (resourcesDrawer.classList.contains("open")) closeResourcesDrawer();
+    else openResourcesDrawer();
+  });
+  resourcesClose.addEventListener("click", closeResourcesDrawer);
+  resourcesOverlay.addEventListener("click", closeResourcesDrawer);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && resourcesDrawer.classList.contains("open")) closeResourcesDrawer();
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Landing screen — centered welcome, sample questions, mode transition.
 // On the first send we swap body class from "landing" to "chat" and let the
 // existing chat layout take over. The landing input forwards its text to the
