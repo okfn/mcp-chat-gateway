@@ -361,6 +361,12 @@ main {
   border-radius: 6px;
 }
 
+.msg.sources {
+  text-align: right;
+  font-style: italic;
+  font-size: 13px;
+}
+
 /* Markdown rendered content */
 .markdown {
   white-space: normal;
