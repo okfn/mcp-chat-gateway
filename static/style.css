@@ -367,6 +367,11 @@ main {
   font-size: 13px;
 }
 
+.msg.sources span {
+  margin-right: 5px;
+  font-weight: bold;
+}
+
 /* Markdown rendered content */
 .markdown {
   white-space: normal;

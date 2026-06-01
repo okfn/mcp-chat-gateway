@@ -195,7 +195,19 @@ function buildSources(sources) {
   const div = document.createElement('div')
   div.className = "msg sources"
   sources.forEach(el => {
-    div.innerText = "Source: " + el;
+    const _label = document.createElement("span");
+    _label.innerText = "Source:";
+    div.appendChild(_label);
+    try {
+      const _url = new URL(el);
+      const _link = document.createElement("a");
+      _link.href = _url;
+      _link.innerText = _url;
+      _link.target = "_blank";
+      div.appendChild(_link);
+    } catch (error) {
+      div.append(el);
+    }
   });
   return div;
 }
