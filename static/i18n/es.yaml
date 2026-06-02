@@ -76,3 +76,5 @@ landing:
 chat:
   placeholder: Escribí un mensaje...
   send: Enviar
+  # Etiqueta que aparece antes de cada enlace de fuente en la respuesta del bot.
+  sourceLabel: 'Fuente:'

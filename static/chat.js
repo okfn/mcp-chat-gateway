@@ -191,7 +191,28 @@ function buildChart(chartData) {
   return wrapper;
 }
 
-function addMessage(role, text) {
+function buildSources(sources) {
+  const div = document.createElement('div')
+  div.className = "msg sources"
+  sources.forEach(el => {
+    const _label = document.createElement("span");
+    _label.innerText = t("chat.sourceLabel") || "Source:";
+    div.appendChild(_label);
+    try {
+      const _url = new URL(el);
+      const _link = document.createElement("a");
+      _link.href = _url;
+      _link.innerText = _url;
+      _link.target = "_blank";
+      div.appendChild(_link);
+    } catch (error) {
+      div.append(el);
+    }
+  });
+  return div;
+}
+
+function addMessage(role, text, sources) {
   const div = document.createElement("details");
   div.className = "msg " + role;
   div.open = true;
@@ -208,8 +229,10 @@ function addMessage(role, text) {
   div.appendChild(title);
   if (role === "table" && Array.isArray(text)) {
     div.appendChild(buildTable(text));
+    div.appendChild(buildSources(sources));
   } else if (role === "chart" && typeof text === "object") {
     div.appendChild(buildChart(text));
+    div.appendChild(buildSources(sources));
   } else if ((role === "assistant" || role === "force") && typeof marked !== "undefined") {
     const html = marked.parse(String(text));
     const content = document.createElement("div");
@@ -361,19 +384,21 @@ function handleSSEEvent(eventType, data) {
     // The MCP tool provides a table to display (display-only, not part of conversation).
     const table_data = data.data || [];
     const table_error = data.error || null;
+    const table_sources = data.sources || []
     if (table_error) {
       addMessage("error", table_error);
     } else {
-      addMessage("table", table_data);
+      addMessage("table", table_data, table_sources);
     }
   } else if (eventType === "chart") {
     // The MCP tool provides a chart to display (display-only, not part of conversation).
     const chart_data = data.data || {};
     const chart_error = data.error || null;
+    const chart_sources = data.sources || [];
     if (chart_error) {
       addMessage("error", chart_error);
     } else {
-      addMessage("chart", chart_data);
+      addMessage("chart", chart_data, chart_sources);
     }
   } else {
     // Unknown event type — show

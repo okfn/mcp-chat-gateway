@@ -402,9 +402,9 @@ def chat():
                 if data.get("force"):
                     yield sse_event("force", {"message": data["force"]})
                 if data.get("table"):
-                    yield sse_event("table", {"data": data.get("table")})
+                    yield sse_event("table", {"data": data.get("table"), "sources": data.get("sources")})
                 for chart_item in data.get("charts", []):
-                    yield sse_event("chart", {"data": chart_item, "error": None})
+                    yield sse_event("chart", {"data": chart_item, "sources": data.get("sources"), "error": None})
 
                 messages.append(
                     {
