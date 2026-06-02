@@ -45,12 +45,12 @@ body > header {
 .nav-links {
   display: flex;
   gap: 20px;
+  align-items: center;
 }
 
 .nav-link {
   color: #eee;
   text-decoration: none;
-  font-size: 15px;
   transition: opacity 0.2s;
 }
 
