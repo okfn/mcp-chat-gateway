@@ -196,7 +196,7 @@ function buildSources(sources) {
   div.className = "msg sources"
   sources.forEach(el => {
     const _label = document.createElement("span");
-    _label.innerText = "Source:";
+    _label.innerText = t("chat.sourceLabel") || "Source:";
     div.appendChild(_label);
     try {
       const _url = new URL(el);

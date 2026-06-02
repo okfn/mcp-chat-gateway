@@ -76,3 +76,5 @@ landing:
 chat:
   placeholder: Digite uma mensagem...
   send: Enviar
+  # Rótulo exibido antes de cada link de fonte na resposta do bot.
+  sourceLabel: 'Fonte:'
