@@ -90,3 +90,9 @@ chat:
   send: Send
   # Label shown before each citation/source link in a bot reply.
   sourceLabel: 'Source:'
+  # Table message controls: CSV download link and the row-collapse toggle.
+  table:
+    download: Download CSV
+    downloadExcel: Download CSV for Excel/Windows
+    showAll: Show all
+    showLess: Show less

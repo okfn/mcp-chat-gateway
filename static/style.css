@@ -348,6 +348,43 @@ main {
   background: #85b8f0;
 }
 
+/* Hide data rows beyond the preview limit until "show all" is toggled. The
+   .show-all class is added to the <table> by the toggle button. */
+.msg.table table:not(.show-all) tr.table-row-hidden {
+  display: none;
+}
+
+/* "Download CSV" link in the table message header (inside <summary>). */
+.msg.table .table-download {
+  margin-left: 10px;
+  font-style: normal;
+  font-weight: 600;
+  color: #130436;
+  text-decoration: underline;
+}
+
+.msg.table .table-download:hover {
+  opacity: 0.75;
+}
+
+/* "Show all / Show less" toggle at the bottom of a collapsed table. */
+.msg.table .table-toggle {
+  display: block;
+  margin: 8px auto 0;
+  padding: 4px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #130436;
+  background: #75adec;
+  border: 1px solid #5a96d8;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.msg.table .table-toggle:hover {
+  background: #85b8f0;
+}
+
 .msg.chart {
   align-self: stretch;
   max-width: 100%;

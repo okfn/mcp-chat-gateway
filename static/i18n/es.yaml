@@ -78,3 +78,9 @@ chat:
   send: Enviar
   # Etiqueta que aparece antes de cada enlace de fuente en la respuesta del bot.
   sourceLabel: 'Fuente:'
+  # Controles del mensaje de tabla: enlace de descarga CSV y el plegado de filas.
+  table:
+    download: Descargar CSV
+    downloadExcel: Descargar CSV para Excel/Windows
+    showAll: Ver todo
+    showLess: Ver menos
