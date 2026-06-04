@@ -33,7 +33,7 @@ resourcesDrawer:
   title: Documentos de referencia
   loading: Cargando documentos…
   empty: Todavía no hay documentos de referencia.
-  open: Abrir
+  download: Descargar
   source: Fuente original
 
 

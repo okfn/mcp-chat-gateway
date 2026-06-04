@@ -43,8 +43,8 @@ resourcesDrawer:
   title: Reference documents
   loading: Loading resources…
   empty: No reference documents available yet.
-  # Link that opens the resource through the gateway proxy (in-browser preview / download).
-  open: Open
+  # Primary download button that fetches the resource through the gateway proxy.
+  download: Download
   # Link that follows the publisher's original URL when a resource declares one.
   source: Original source
 
