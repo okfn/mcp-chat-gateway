@@ -619,6 +619,8 @@ function renderResourcesCatalog(catalog) {
         details.appendChild(desc);
       }
 
+      // Read-only facts about the resource (publisher, year, type, size) stay
+      // as small grey tags — they are metadata, not actions.
       const metaRow = document.createElement("div");
       metaRow.className = "tools-group-badges";
       const facts = [];
@@ -632,28 +634,48 @@ function renderResourcesCatalog(catalog) {
         badge.textContent = text;
         metaRow.appendChild(badge);
       });
+      if (facts.length) details.appendChild(metaRow);
 
-      const openLink = document.createElement("a");
-      openLink.href = `/resource?uri=${encodeURIComponent(r.uri)}`;
-      openLink.target = "_blank";
-      openLink.rel = "noopener";
-      openLink.className = "tools-badge tools-badge--open";
-      openLink.textContent =
-        (window.i18n && window.i18n.t("resourcesDrawer.open")) || "Open";
-      metaRow.appendChild(openLink);
+      // Actions live in their own row. The primary one is a clear download
+      // button (not a tag), so users recognise the resource is downloadable.
+      const actionsRow = document.createElement("div");
+      actionsRow.className = "resource-actions";
+
+      const downloadLink = document.createElement("a");
+      downloadLink.href = `/resource?uri=${encodeURIComponent(r.uri)}`;
+      downloadLink.target = "_blank";
+      downloadLink.rel = "noopener";
+      // Hint the browser to download rather than navigate; the empty value
+      // lets it fall back to the server-provided filename.
+      downloadLink.setAttribute("download", "");
+      downloadLink.className = "resource-download";
+      const icon = document.createElement("span");
+      icon.className = "resource-download-icon";
+      icon.setAttribute("aria-hidden", "true");
+      icon.innerHTML =
+        '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" ' +
+        'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" ' +
+        'stroke-linejoin="round"><path d="M8 1.5v8.5M4.5 7 8 10.5 11.5 7"/>' +
+        '<path d="M2.5 12.5v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1"/></svg>';
+      downloadLink.appendChild(icon);
+      const label = document.createElement("span");
+      label.textContent =
+        (window.i18n && window.i18n.t("resourcesDrawer.download")) || "Download";
+      downloadLink.appendChild(label);
+      actionsRow.appendChild(downloadLink);
 
       if (r.source_url) {
         const src = document.createElement("a");
         src.href = r.source_url;
         src.target = "_blank";
         src.rel = "noopener";
-        src.className = "tools-badge tools-badge--source";
+        src.className = "resource-source";
         src.textContent =
           (window.i18n && window.i18n.t("resourcesDrawer.source")) || "Original source";
-        metaRow.appendChild(src);
+        actionsRow.appendChild(src);
       }
 
-      details.appendChild(metaRow);
+      details.appendChild(actionsRow);
       item.appendChild(details);
       list.appendChild(item);
     });
