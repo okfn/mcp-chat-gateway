@@ -78,3 +78,9 @@ chat:
   send: Enviar
   # Rótulo exibido antes de cada link de fonte na resposta do bot.
   sourceLabel: 'Fonte:'
+  # Controles da mensagem de tabela: link de download CSV e o recolhimento de linhas.
+  table:
+    download: Baixar CSV
+    downloadExcel: Baixar CSV para Excel/Windows
+    showAll: Mostrar tudo
+    showLess: Mostrar menos

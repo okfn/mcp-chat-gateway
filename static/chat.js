@@ -30,10 +30,80 @@ function linkify(text) {
   return frag;
 }
 
+// Number of data rows (excluding the header) shown before collapsing the rest
+// behind a "show all" button. Collapsing is display-only: the CSV download
+// always exports every row.
+const TABLE_ROW_LIMIT = 5;
+
+// Serialize the full table (header + every data row) to RFC 4180 CSV.
+//
+// We deliberately stick to the standard: UTF-8 with no BOM, comma delimiter,
+// CRLF line endings. This is correct, portable CSV. It may NOT open cleanly in
+// Excel on Windows, which (a) assumes the legacy system codepage without a BOM,
+// so accented chars (Spanish/Portuguese) garble, and (b) uses the locale "list
+// separator" (often ";" in es/pt locales) instead of "," to split columns.
+// That's an Excel/Windows quirk, not a bug here -- standards win.
+//
+// `delim` defaults to "," (the standard). A cell is quoted when it contains the
+// delimiter, a quote, or a line break, so changing the delimiter stays safe.
+function tableToCSV(rows, delim) {
+  delim = delim || ",";
+  const needsQuote = new RegExp('["\r\n' + delim + ']');
+  const escape = (cell) => {
+    const s = cell == null ? "" : String(cell);
+    return needsQuote.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  return rows.map((row) => row.map(escape).join(delim)).join("\r\n");
+}
+
+// Excel/Windows-flavored CSV. Two NON-STANDARD choices make Excel open it
+// correctly on a double-click, without the ugly "sep=" preamble:
+//   1. A UTF-8 BOM (U+FEFF) so Excel detects UTF-8 instead of the legacy
+//      system codepage -- keeps Spanish/Portuguese accents from garbling.
+//      (Invisible inside Excel; only dumb text viewers show it.)
+//   2. A semicolon delimiter, which is the default "list separator" Excel uses
+//      in es/pt locales -- so columns split correctly with no hint line.
+function tableToExcelCSV(rows) {
+  return "\uFEFF" + tableToCSV(rows, ";");
+}
+
+// Build a download link for the given CSV content. A Blob URL (rather than a
+// data: URI) keeps large exports from hitting URL-length limits. stopPropagation
+// keeps the click from toggling the surrounding <summary>.
+function buildDownloadLink(content, filename, label) {
+  const link = document.createElement("a");
+  link.className = "table-download";
+  link.download = filename;
+  link.textContent = label;
+  const blob = new Blob([content], { type: "text/csv;charset=utf-8" });
+  link.href = URL.createObjectURL(blob);
+  link.addEventListener("click", (e) => e.stopPropagation());
+  return link;
+}
+
+// Two "download as CSV" links covering ALL rows, regardless of how many are
+// currently visible: a standard RFC 4180 file and an Excel/Windows variant.
+// Used in the table message header.
+function buildCSVDownload(rows) {
+  const frag = document.createDocumentFragment();
+  frag.appendChild(buildDownloadLink(
+    tableToCSV(rows), "table.csv",
+    t("chat.table.download") || "Download CSV"));
+  frag.appendChild(buildDownloadLink(
+    tableToExcelCSV(rows), "table-excel.csv",
+    t("chat.table.downloadExcel") || "Download CSV for Excel/Windows"));
+  return frag;
+}
+
 function buildTable(rows) {
+  const wrap = document.createElement("div");
+  wrap.className = "table-wrap";
+
   const table = document.createElement("table");
   rows.forEach((row, i) => {
     const tr = document.createElement("tr");
+    // i === 0 is the header row; data rows beyond the limit start hidden.
+    if (i > TABLE_ROW_LIMIT) tr.className = "table-row-hidden";
     row.forEach((cell) => {
       const el = document.createElement(i === 0 ? "th" : "td");
       const linked = linkify(cell);
@@ -42,7 +112,24 @@ function buildTable(rows) {
     });
     table.appendChild(tr);
   });
-  return table;
+  wrap.appendChild(table);
+
+  const dataRows = Math.max(0, rows.length - 1);
+  if (dataRows > TABLE_ROW_LIMIT) {
+    const hiddenCount = dataRows - TABLE_ROW_LIMIT;
+    const showAll = () => (t("chat.table.showAll") || "Show all") + " (" + hiddenCount + ")";
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "table-toggle";
+    toggle.textContent = showAll();
+    toggle.addEventListener("click", () => {
+      const expanded = table.classList.toggle("show-all");
+      toggle.textContent = expanded ? (t("chat.table.showLess") || "Show less") : showAll();
+    });
+    wrap.appendChild(toggle);
+  }
+
+  return wrap;
 }
 
 const CHART_COLORS = [
@@ -221,6 +308,9 @@ function addMessage(role, text, sources) {
   if (role === "force" || role === "table" || role === "chart") {
     const titles = { table: "MCP Tool (human) Table", chart: "MCP Tool (human) Chart", force: "MCP Tool (human) Message" };
     title.textContent = titles[role];
+    if (role === "table" && Array.isArray(text) && text.length) {
+      title.appendChild(buildCSVDownload(text));
+    }
   } else {
     const labels = { user: "You", assistant: "Assistant", error: "Error" };
     title.className = "msg-summary msg-summary-" + role;
