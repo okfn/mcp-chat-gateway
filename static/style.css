@@ -310,7 +310,7 @@ main {
 .msg.force {
   align-self: stretch;
   max-width: 100%;
-  background: #97c2f2;
+  background: #ffffcc;
   color: #130436;
   border: 1px solid #111050;
 }
