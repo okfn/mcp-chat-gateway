@@ -398,6 +398,31 @@ main {
   border-radius: 6px;
 }
 
+/* Export buttons in the chart message header (inside <summary>). Styled to
+   match the table-download links, but as <button>s because the file is
+   generated at click time. */
+.msg.chart .chart-export {
+  margin-left: 10px;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: #130436;
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.msg.chart .chart-export:hover {
+  opacity: 0.75;
+}
+
+/* Disabled while showing click feedback ("Copied!" / "Failed"). */
+.msg.chart .chart-export:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
 .msg.sources {
   text-align: right;
   font-style: italic;
