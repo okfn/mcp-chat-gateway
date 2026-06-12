@@ -35,62 +35,17 @@ function linkify(text) {
 // always exports every row.
 const TABLE_ROW_LIMIT = 5;
 
-// Serialize the full table (header + every data row) to RFC 4180 CSV.
-//
-// We deliberately stick to the standard: UTF-8 with no BOM, comma delimiter,
-// CRLF line endings. This is correct, portable CSV. It may NOT open cleanly in
-// Excel on Windows, which (a) assumes the legacy system codepage without a BOM,
-// so accented chars (Spanish/Portuguese) garble, and (b) uses the locale "list
-// separator" (often ";" in es/pt locales) instead of "," to split columns.
-// That's an Excel/Windows quirk, not a bug here -- standards win.
-//
-// `delim` defaults to "," (the standard). A cell is quoted when it contains the
-// delimiter, a quote, or a line break, so changing the delimiter stays safe.
-function tableToCSV(rows, delim) {
-  delim = delim || ",";
-  const needsQuote = new RegExp('["\r\n' + delim + ']');
-  const escape = (cell) => {
-    const s = cell == null ? "" : String(cell);
-    return needsQuote.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
-  };
-  return rows.map((row) => row.map(escape).join(delim)).join("\r\n");
-}
-
-// Excel/Windows-flavored CSV. Two NON-STANDARD choices make Excel open it
-// correctly on a double-click, without the ugly "sep=" preamble:
-//   1. A UTF-8 BOM (U+FEFF) so Excel detects UTF-8 instead of the legacy
-//      system codepage -- keeps Spanish/Portuguese accents from garbling.
-//      (Invisible inside Excel; only dumb text viewers show it.)
-//   2. A semicolon delimiter, which is the default "list separator" Excel uses
-//      in es/pt locales -- so columns split correctly with no hint line.
-function tableToExcelCSV(rows) {
-  return "\uFEFF" + tableToCSV(rows, ";");
-}
-
-// Build a download link for the given CSV content. A Blob URL (rather than a
-// data: URI) keeps large exports from hitting URL-length limits. stopPropagation
-// keeps the click from toggling the surrounding <summary>.
-function buildDownloadLink(content, filename, label) {
-  const link = document.createElement("a");
-  link.className = "table-download";
-  link.download = filename;
-  link.textContent = label;
-  const blob = new Blob([content], { type: "text/csv;charset=utf-8" });
-  link.href = URL.createObjectURL(blob);
-  link.addEventListener("click", (e) => e.stopPropagation());
-  return link;
-}
-
 // Two "download as CSV" links covering ALL rows, regardless of how many are
 // currently visible: a standard RFC 4180 file and an Excel/Windows variant.
-// Used in the table message header.
+// Used in the table message header. Serialization lives in /static/csv.js,
+// the link builder in /static/download.js.
 function buildCSVDownload(rows) {
   const frag = document.createDocumentFragment();
-  frag.appendChild(buildDownloadLink(
-    tableToCSV(rows), "table.csv",
+  frag.appendChild(DownloadUtil.buildDownloadLink(
+    CSVExport.toCSV(rows), "text/csv;charset=utf-8", "table.csv",
     t("chat.table.download") || "Download CSV"));
-  frag.appendChild(buildDownloadLink(
-    tableToExcelCSV(rows), "table-excel.csv",
+  frag.appendChild(DownloadUtil.buildDownloadLink(
+    CSVExport.toExcelCSV(rows), "text/csv;charset=utf-8", "table-excel.csv",
     t("chat.table.downloadExcel") || "Download CSV for Excel/Windows"));
   return frag;
 }
@@ -132,148 +87,16 @@ function buildTable(rows) {
   return wrap;
 }
 
-const CHART_COLORS = [
-  "#4e79a7", "#f28e2b", "#e15759", "#76b7b2",
-  "#59a14f", "#edc948", "#b07aa1", "#ff9da7",
-  "#9c755f", "#bab0ac", "#a0cbe8", "#ffbe7d",
-  "#8cd17d", "#b6992d", "#f1ce63", "#499894",
-];
-
-// Chart.js plugin: draw percentage labels on top of pie/doughnut slices.
-// Skips slices smaller than 3% to avoid clutter. White text with a dark
-// outline so it stays readable on any slice color.
-const piePercentPlugin = {
-  id: "piePercent",
-  afterDatasetsDraw(chart) {
-    const type = chart.config.type;
-    if (type !== "pie" && type !== "doughnut") return;
-    const dataset = chart.data.datasets[0];
-    if (!dataset) return;
-    const values = (dataset.data || []).map((v) => Number(v) || 0);
-    const total = values.reduce((s, v) => s + v, 0);
-    if (!total) return;
-    const meta = chart.getDatasetMeta(0);
-    const { ctx } = chart;
-    ctx.save();
-    ctx.font = "bold 12px sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    meta.data.forEach((arc, i) => {
-      const pct = (values[i] / total) * 100;
-      if (pct < 3) return;
-      const { x, y, startAngle, endAngle, outerRadius, innerRadius } = arc.getProps(
-        ["x", "y", "startAngle", "endAngle", "outerRadius", "innerRadius"],
-        true,
-      );
-      const midAngle = (startAngle + endAngle) / 2;
-      const radius = (innerRadius + outerRadius) / 2;
-      const labelX = x + Math.cos(midAngle) * radius;
-      const labelY = y + Math.sin(midAngle) * radius;
-      const text = pct.toFixed(1) + "%";
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = "rgba(0, 0, 0, 0.65)";
-      ctx.strokeText(text, labelX, labelY);
-      ctx.fillStyle = "#fff";
-      ctx.fillText(text, labelX, labelY);
-    });
-    ctx.restore();
-  },
-};
-if (typeof Chart !== "undefined") {
-  Chart.register(piePercentPlugin);
-}
-
+// Render a chart message. The chartData -> Chart.js config translation lives
+// in /static/chart-render.js, shared with the chart exports.
 function buildChart(chartData) {
   const wrapper = document.createElement("div");
   wrapper.style.height = "600px";
   const canvas = document.createElement("canvas");
   wrapper.appendChild(canvas);
-  const beginAtZero = chartData.beginAtZero !== false;
-  const isStacked = chartData.stacked && Array.isArray(chartData.datasets);
-  const chartType = chartData.type || "bar";
-  const isLine = chartType === "line";
-
-  let datasets;
-  if (isStacked) {
-    datasets = chartData.datasets.map((ds, i) => ({
-      label: ds.label || "",
-      data: ds.data || [],
-      backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
-      borderWidth: 1,
-    }));
-  } else if (Array.isArray(chartData.datasets) && chartData.datasets.length > 0) {
-    datasets = chartData.datasets.map((ds, i) => {
-      const fallback = CHART_COLORS[i % CHART_COLORS.length];
-      const base = {
-        label: ds.label || chartData.title || "",
-        data: ds.data || [],
-      };
-      if (isLine) {
-        const lineColor = ds.borderColor || ds.color || fallback;
-        base.borderColor = lineColor;
-        // For lines, fade the fill if backgroundColor wasn't explicit.
-        base.backgroundColor = ds.backgroundColor
-          || (typeof lineColor === "string" ? lineColor + "33" : lineColor);
-        base.borderWidth = 2;
-        base.pointRadius = 4;
-        base.tension = 0.3;
-        base.fill = false;
-      } else {
-        // For pie/doughnut, ds.backgroundColor is an array (one color per
-        // slice). For bar, it's a string. Honor whatever the tool sent.
-        base.backgroundColor = ds.backgroundColor || ds.color || fallback;
-        base.borderColor = ds.borderColor || ds.color || fallback;
-        base.borderWidth = 1;
-      }
-      return base;
-    });
-  } else {
-    const base = {
-      label: chartData.title || "",
-      data: chartData.values || [],
-    };
-    if (isLine) {
-      base.borderColor = "#04498f";
-      base.backgroundColor = "#04498f33";
-      base.borderWidth = 2;
-      base.pointRadius = 4;
-      base.tension = 0.3;
-      base.fill = false;
-    } else {
-      base.backgroundColor = chartData.color || "#04498f";
-      base.borderColor = chartData.borderColor || chartData.color || "#090824";
-      base.borderWidth = 1;
-    }
-    datasets = [base];
-  }
-
   // Chart.js needs the canvas in the DOM to size correctly, so we defer init
   setTimeout(() => {
-    new Chart(canvas, {
-      type: chartType,
-      data: {
-        labels: chartData.labels || [],
-        datasets: datasets,
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          title: chartData.title ? {
-            display: true,
-            text: chartData.title,
-            font: { size: 14 },
-          } : { display: false },
-          legend: { display: isStacked || datasets.length > 1 || !!chartData.title },
-        },
-        scales: isStacked ? {
-          x: { stacked: true },
-          y: { stacked: true, beginAtZero: beginAtZero },
-        } : {
-          y: { beginAtZero: beginAtZero },
-        },
-      },
-    });
+    new Chart(canvas, ChartRender.buildConfig(chartData));
   }, 0);
   return wrapper;
 }
@@ -310,6 +133,9 @@ function addMessage(role, text, sources) {
     title.textContent = titles[role];
     if (role === "table" && Array.isArray(text) && text.length) {
       title.appendChild(buildCSVDownload(text));
+    }
+    if (role === "chart" && text && typeof text === "object") {
+      title.appendChild(ChartExports.buildMenu(text, sources));
     }
   } else {
     const labels = { user: "You", assistant: "Assistant", error: "Error" };
