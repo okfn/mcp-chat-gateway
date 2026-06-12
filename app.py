@@ -18,6 +18,7 @@ from flask import (
     Flask,
     Response,
     jsonify,
+    redirect,
     render_template,
     request,
     send_from_directory,
@@ -587,6 +588,11 @@ def get_resource_endpoint():
     filename = (parsed.path or "resource").rsplit("/", 1)[-1] or "resource"
 
     if "text" in first:
+        # A text/uri-list resource is a pointer to an external page, not a
+        # document: it holds a single URL, so send the browser there instead
+        # of serving the text as a file.
+        if mime == "text/uri-list":
+            return redirect(first["text"].strip())
         return Response(first["text"], mimetype=mime)
     if "blob" in first:
         raw = base64.b64decode(first["blob"])

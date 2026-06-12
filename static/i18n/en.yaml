@@ -45,6 +45,8 @@ resourcesDrawer:
   empty: No reference documents available yet.
   # Primary download button that fetches the resource through the gateway proxy.
   download: Download
+  # Primary button for link resources (text/uri-list); opens the external page.
+  open: Open
   # Link that follows the publisher's original URL when a resource declares one.
   source: Original source
 
