@@ -156,7 +156,7 @@ def get_mcp_tools(force_refresh=False):
 
     The tool list is static for the life of the MCP server, so we cache it
     rather than calling ``tools/list`` on every request. Pass
-    ``force_refresh=True`` to invalidate the cache (used by /tools/refresh).
+    ``force_refresh=True`` to invalidate the cache.
     """
     global _mcp_tools_cache
     now = time.time()
@@ -476,7 +476,7 @@ def list_tools():
     in a synthetic "core" group.
     """
     try:
-        mcp_tools = get_mcp_tools()
+        mcp_tools = get_mcp_tools(force_refresh=True)
     except Exception as e:
         logger.error(f"Failed to fetch MCP tools for /tools: {e}")
         return jsonify({"groups": [], "error": str(e)}), 502
@@ -510,17 +510,6 @@ def list_tools():
     for group in ordered:
         group["tools"].sort(key=lambda t: t["display_name"])
     return jsonify({"groups": ordered})
-
-
-@app.route("/tools/refresh", methods=["POST"])
-def refresh_tools():
-    """Force a refresh of the cached MCP tool catalog.
-
-    Use after the MCP server is restarted with new/changed plugins so the
-    gateway picks up the new tools without a full gateway restart.
-    """
-    get_mcp_tools(force_refresh=True)
-    return jsonify({"ok": True})
 
 
 @app.route("/resources")
