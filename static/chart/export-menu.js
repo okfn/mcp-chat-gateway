@@ -46,8 +46,8 @@
   }
 
   window.ChartExports.buildMenu = function (chartData, sources) {
-    const frag = document.createDocumentFragment();
-
+    const frag = document.createElement('div')
+    frag.className = "msg chart-actions"
     frag.appendChild(actionButton(t("chat.chart.png") || "PNG", (btn) => {
       ChartExports.downloadPNG(chartData).catch(() => failed(btn));
     }));

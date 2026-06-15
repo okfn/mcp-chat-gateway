@@ -100,7 +100,7 @@ chat:
   # short -- they all share one line.
   chart:
     # Download the chart as a PNG image.
-    png: PNG
+    png: Download PNG
     # Copy the chart image to the clipboard (for pasting into docs/slides).
     copy: Copy image
     # Brief feedback after a successful / failed clipboard copy.

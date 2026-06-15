@@ -87,7 +87,7 @@ chat:
   # Controles del mensaje de gráfico: botones de exportación en el encabezado.
   # Mantenerlos cortos: comparten una sola línea.
   chart:
-    png: PNG
+    png: Descargar PNG
     copy: Copiar imagen
     copied: ¡Copiado!
     copyFailed: Error al copiar

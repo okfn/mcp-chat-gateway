@@ -134,9 +134,7 @@ function addMessage(role, text, sources) {
     if (role === "table" && Array.isArray(text) && text.length) {
       title.appendChild(buildCSVDownload(text));
     }
-    if (role === "chart" && text && typeof text === "object") {
-      title.appendChild(ChartExports.buildMenu(text, sources));
-    }
+
   } else {
     const labels = { user: "You", assistant: "Assistant", error: "Error" };
     title.className = "msg-summary msg-summary-" + role;
@@ -149,6 +147,7 @@ function addMessage(role, text, sources) {
   } else if (role === "chart" && typeof text === "object") {
     div.appendChild(buildChart(text));
     div.appendChild(buildSources(sources));
+    div.appendChild(ChartExports.buildMenu(text, sources));
   } else if ((role === "assistant" || role === "force") && typeof marked !== "undefined") {
     const html = marked.parse(String(text));
     const content = document.createElement("div");

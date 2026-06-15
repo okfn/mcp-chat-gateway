@@ -434,6 +434,13 @@ main {
   font-weight: bold;
 }
 
+.msg.chart-actions {
+  text-align: left;
+  font-size: 13px;
+  line-height: 1;
+  padding: 2px;
+}
+
 /* Markdown rendered content */
 .markdown {
   white-space: normal;
