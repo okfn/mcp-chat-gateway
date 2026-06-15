@@ -3,7 +3,7 @@
 // chart's <summary>, mirroring how table messages get their CSV links.
 //
 // Each button delegates to one ChartExports action (one file per action:
-// chart-export-png.js, -clipboard.js, -html.js, -data.js, -spec.js).
+// chart/export-png.js, -clipboard.js, -html.js, -data.js, -spec.js).
 // Must load AFTER those files and is the only chart-export file that touches
 // i18n -- the actions themselves stay UI-free.
 

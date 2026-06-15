@@ -1,9 +1,9 @@
 // Chart export: download a self-contained interactive HTML file.
 //
-// The file inlines BOTH the Chart.js library and our chart-render.js, plus
+// The file inlines BOTH the Chart.js library and our chart/render.js, plus
 // the chart spec as JSON, so it opens offline, can be emailed, and keeps the
 // Chart.js interactivity (tooltips, legend toggling). Because it embeds the
-// same chart-render.js the chat page uses, the exported chart is rendered by
+// same chart/render.js the chat page uses, the exported chart is rendered by
 // the exact same code path as the live one.
 //
 // Adds ChartExports.downloadHTML(chartData, sources) -> Promise.
@@ -14,7 +14,7 @@
   // Must match the <script> tag in templates/index.html so the fetch is
   // served from the browser's HTTP cache (the page already loaded it).
   const CHARTJS_URL = "https://cdn.jsdelivr.net/npm/chart.js@4";
-  const RENDERER_URL = "/static/chart-render.js";
+  const RENDERER_URL = "/static/chart/render.js";
 
   let sourcesPromise = null;
 

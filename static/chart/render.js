@@ -92,7 +92,7 @@
       datasets = chartData.datasets.map((ds, i) => ({
         label: ds.label || "",
         data: ds.data || [],
-        backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
+        backgroundColor: ds.backgroundColor || ds.color || CHART_COLORS[i % CHART_COLORS.length],
         borderWidth: 1,
       }));
     } else if (Array.isArray(chartData.datasets) && chartData.datasets.length > 0) {

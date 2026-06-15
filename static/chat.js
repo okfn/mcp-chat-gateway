@@ -88,7 +88,7 @@ function buildTable(rows) {
 }
 
 // Render a chart message. The chartData -> Chart.js config translation lives
-// in /static/chart-render.js, shared with the chart exports.
+// in /static/chart/render.js, shared with the chart exports.
 function buildChart(chartData) {
   const wrapper = document.createElement("div");
   wrapper.style.height = "600px";

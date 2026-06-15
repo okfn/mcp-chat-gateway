@@ -1,5 +1,5 @@
 // CSV serialization, shared by the table message downloads (chat.js) and the
-// chart data export (chart-export-data.js). Serialization only -- triggering
+// chart data export (chart/export-data.js). Serialization only -- triggering
 // the actual browser download lives in download.js.
 //
 // Exposes window.CSVExport = { toCSV, toExcelCSV }.
