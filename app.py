@@ -49,7 +49,7 @@ _mcp_session_id = None
 # for the life of the MCP server, so we cache them with a TTL to avoid
 # refetching tools/list on every /chat message. TTL of 0 = cache forever.
 _mcp_tools_cache = None
-_MCP_TOOLS_TTL = 300
+_MCP_TOOLS_TTL = 0
 
 
 def _mcp_headers():
