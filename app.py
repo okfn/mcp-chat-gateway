@@ -11,7 +11,6 @@ import base64
 from datetime import datetime, timezone
 import json
 import os
-import time
 from urllib.parse import urlparse
 
 import httpx
@@ -46,10 +45,9 @@ app = Flask(__name__, static_folder="static")
 _mcp_session_id = None
 
 # Cached MCP tool catalog: (fetched_at_epoch, tools_list). Tools are static
-# for the life of the MCP server, so we cache them with a TTL to avoid
-# refetching tools/list on every /chat message. TTL of 0 = cache forever.
+# for the life of the MCP server, so we cache them. Calling /tools will
+# force a refresh.
 _mcp_tools_cache = None
-_MCP_TOOLS_TTL = 0
 
 
 def _mcp_headers():
@@ -159,13 +157,10 @@ def get_mcp_tools(force_refresh=False):
     ``force_refresh=True`` to invalidate the cache.
     """
     global _mcp_tools_cache
-    now = time.time()
     if not force_refresh and _mcp_tools_cache is not None:
-        fetched_at, tools = _mcp_tools_cache
-        if _MCP_TOOLS_TTL == 0 or now - fetched_at < _MCP_TOOLS_TTL:
-            return tools
+        return _mcp_tools_cache
     tools = mcp_list_tools()
-    _mcp_tools_cache = (now, tools)
+    _mcp_tools_cache = tools
     return tools
 
 
