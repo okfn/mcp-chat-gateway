@@ -107,9 +107,21 @@
   <button id="send" data-i18n="chat.send">Send</button>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Pinned to v4: chart/export-html.js fetches this exact URL to inline the
+     library into exported files, and an unpinned major bump could break the
+     chart/render.js it embeds. Keep both in sync. -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+<script src="/static/chart/render.js"></script>
+<script src="/static/csv.js"></script>
+<script src="/static/download.js"></script>
+<script src="/static/chart/export-png.js"></script>
+<script src="/static/chart/export-clipboard.js"></script>
+<script src="/static/chart/export-html.js"></script>
+<script src="/static/chart/export-data.js"></script>
+<script src="/static/chart/export-spec.js"></script>
+<script src="/static/chart/export-menu.js"></script>
 <script src="/static/i18n.js"></script>
 <script src="/static/chat.js"></script>
 

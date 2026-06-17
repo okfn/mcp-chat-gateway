@@ -84,3 +84,15 @@ chat:
     downloadExcel: Baixar CSV para Excel/Windows
     showAll: Mostrar tudo
     showLess: Mostrar menos
+  # Controles da mensagem de gráfico: botões de exportação no cabeçalho.
+  # Mantenha-os curtos: compartilham uma única linha.
+  chart:
+    png: Baixar PNG
+    copy: Copiar imagem
+    copied: Copiado!
+    copyFailed: Falha ao copiar
+    html: HTML interativo
+    csv: Dados (CSV)
+    csvExcel: Dados (CSV Excel)
+    spec: Especificação (JSON)
+    failed: Falhou

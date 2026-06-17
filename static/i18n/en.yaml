@@ -96,3 +96,22 @@ chat:
     downloadExcel: Download CSV for Excel/Windows
     showAll: Show all
     showLess: Show less
+  # Chart message controls: export buttons in the chart header. Keep these
+  # short -- they all share one line.
+  chart:
+    # Download the chart as a PNG image.
+    png: Download PNG
+    # Copy the chart image to the clipboard (for pasting into docs/slides).
+    copy: Copy image
+    # Brief feedback after a successful / failed clipboard copy.
+    copied: Copied!
+    copyFailed: Copy failed
+    # Download a self-contained interactive HTML file (works offline).
+    html: Interactive HTML
+    # Download the numbers behind the chart as CSV (standard / Excel flavor).
+    csv: Data (CSV)
+    csvExcel: Data (CSV Excel)
+    # Download the raw chart spec as JSON (for power users).
+    spec: Spec (JSON)
+    # Brief feedback when a download action fails.
+    failed: Failed
