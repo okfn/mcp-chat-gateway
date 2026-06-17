@@ -34,6 +34,7 @@ resourcesDrawer:
   loading: Carregando documentos…
   empty: Ainda não há documentos de referência.
   download: Baixar
+  open: Abrir
   source: Fonte original
 
 

@@ -553,6 +553,10 @@ function renderResourcesCatalog(catalog) {
 
       // Actions live in their own row. The primary one is a clear download
       // button (not a tag), so users recognise the resource is downloadable.
+      // A text/uri-list resource is a link to an external page, not a file:
+      // its primary action opens the page (the /resource proxy redirects)
+      // instead of downloading.
+      const isLink = r.mime_type === "text/uri-list";
       const actionsRow = document.createElement("div");
       actionsRow.className = "resource-actions";
 
@@ -560,22 +564,30 @@ function renderResourcesCatalog(catalog) {
       downloadLink.href = `/resource?uri=${encodeURIComponent(r.uri)}`;
       downloadLink.target = "_blank";
       downloadLink.rel = "noopener";
-      // Hint the browser to download rather than navigate; the empty value
-      // lets it fall back to the server-provided filename.
-      downloadLink.setAttribute("download", "");
+      if (!isLink) {
+        // Hint the browser to download rather than navigate; the empty value
+        // lets it fall back to the server-provided filename.
+        downloadLink.setAttribute("download", "");
+      }
       downloadLink.className = "resource-download";
       const icon = document.createElement("span");
       icon.className = "resource-download-icon";
       icon.setAttribute("aria-hidden", "true");
-      icon.innerHTML =
-        '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" ' +
-        'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" ' +
-        'stroke-linejoin="round"><path d="M8 1.5v8.5M4.5 7 8 10.5 11.5 7"/>' +
-        '<path d="M2.5 12.5v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1"/></svg>';
+      icon.innerHTML = isLink
+        ? '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" ' +
+          'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" ' +
+          'stroke-linejoin="round"><path d="M6.5 3.5h-3a1 1 0 0 0-1 1v8a1 1 ' +
+          '0 0 0 1 1h8a1 1 0 0 0 1-1v-3"/><path d="M9.5 2.5h4v4"/>' +
+          '<path d="M13.5 2.5 7.5 8.5"/></svg>'
+        : '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" ' +
+          'stroke="currentColor" stroke-width="1.6" stroke-linecap="round" ' +
+          'stroke-linejoin="round"><path d="M8 1.5v8.5M4.5 7 8 10.5 11.5 7"/>' +
+          '<path d="M2.5 12.5v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1"/></svg>';
       downloadLink.appendChild(icon);
       const label = document.createElement("span");
-      label.textContent =
-        (window.i18n && window.i18n.t("resourcesDrawer.download")) || "Download";
+      label.textContent = isLink
+        ? (window.i18n && window.i18n.t("resourcesDrawer.open")) || "Open"
+        : (window.i18n && window.i18n.t("resourcesDrawer.download")) || "Download";
       downloadLink.appendChild(label);
       actionsRow.appendChild(downloadLink);
 
