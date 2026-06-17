@@ -44,6 +44,11 @@ app = Flask(__name__, static_folder="static")
 # Session ID obtained after MCP initialize handshake
 _mcp_session_id = None
 
+# Cached MCP tool catalog: (fetched_at_epoch, tools_list). Tools are static
+# for the life of the MCP server, so we cache them. Calling /tools will
+# force a refresh.
+_mcp_tools_cache = None
+
 
 def _mcp_headers():
     """Common headers for MCP streamable HTTP requests."""
@@ -142,6 +147,21 @@ def mcp_list_tools():
     })
 
     return data.get("result", {}).get("tools", [])
+
+
+def get_mcp_tools(force_refresh=False):
+    """Return the MCP tool catalog, cached with a TTL.
+
+    The tool list is static for the life of the MCP server, so we cache it
+    rather than calling ``tools/list`` on every request. Pass
+    ``force_refresh=True`` to invalidate the cache.
+    """
+    global _mcp_tools_cache
+    if not force_refresh and _mcp_tools_cache is not None:
+        return _mcp_tools_cache
+    tools = mcp_list_tools()
+    _mcp_tools_cache = tools
+    return tools
 
 
 def mcp_call_tool(name, arguments):
@@ -318,7 +338,7 @@ def chat():
 
     # Fetch available MCP tools
     try:
-        mcp_tools = mcp_list_tools()
+        mcp_tools = get_mcp_tools()
         logger.info(f"MCP found {len(mcp_tools)} tools: {[t['name'] for t in mcp_tools]}")
     except Exception as e:
         logger.error(f"MCP connection error: {e}")
@@ -429,7 +449,7 @@ def about():
 def how_to():
     """Serve the How to page with MCP tools information."""
     try:
-        mcp_tools = mcp_list_tools()
+        mcp_tools = get_mcp_tools()
     except Exception as e:
         logger.error(f"Failed to fetch MCP tools for about page: {e}")
         mcp_tools = []
@@ -451,7 +471,7 @@ def list_tools():
     in a synthetic "core" group.
     """
     try:
-        mcp_tools = mcp_list_tools()
+        mcp_tools = get_mcp_tools(force_refresh=True)
     except Exception as e:
         logger.error(f"Failed to fetch MCP tools for /tools: {e}")
         return jsonify({"groups": [], "error": str(e)}), 502
@@ -485,6 +505,7 @@ def list_tools():
     for group in ordered:
         group["tools"].sort(key=lambda t: t["display_name"])
     return jsonify({"groups": ordered})
+
 
 @app.route("/resources")
 def list_resources_endpoint():
@@ -585,4 +606,12 @@ if __name__ == "__main__":
     logger.info(f"Webchat starting on http://{settings.WEBCHAT_HOST}:{settings.WEBCHAT_PORT}")
     logger.info(f"AI provider: {settings.AI_BASE_URL} (model: {settings.AI_MODEL})")
     logger.info(f"MCP server: {settings.MCP_URL}")
+
+    # Warm the tool cache so the first user message isn't slow.
+    try:
+        get_mcp_tools()
+        logger.info("MCP tool cache warmed at startup")
+    except Exception as e:
+        logger.warning(f"Could not warm MCP tool cache at startup: {e}")
+
     app.run(host=settings.WEBCHAT_HOST, port=settings.WEBCHAT_PORT)
