@@ -10,6 +10,7 @@ Log levels:
 import json
 import logging
 import os
+from logging.handlers import RotatingFileHandler
 
 import settings
 
@@ -43,7 +44,12 @@ def setup_logging():
     logger.addHandler(console)
 
     os.makedirs(LOG_DIR, exist_ok=True)
-    file_handler = logging.FileHandler(LOG_FILE)
+    file_handler = RotatingFileHandler(
+        LOG_FILE,
+        maxBytes=settings.LOG_MAX_BYTES,
+        backupCount=settings.LOG_BACKUP_COUNT,
+        encoding="utf-8",
+    )
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 

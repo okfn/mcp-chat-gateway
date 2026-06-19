@@ -7,6 +7,9 @@ MCP_URL = "http://127.0.0.1:8063/"
 WEBCHAT_HOST = "127.0.0.1"
 WEBCHAT_PORT = 8064
 LOG_LEVEL = "INFO"
+# Log rotation: keep at most LOG_MAX_BYTES per file and LOG_BACKUP_COUNT old files.
+LOG_MAX_BYTES = 50 * 1024 * 1024  # 50 MB per file
+LOG_BACKUP_COUNT = 5  # webchat.log + webchat.log.1 .. .5 (max ~300 MB total)
 
 
 # Optionally override settings with local_settings.py (not committed to git)
@@ -24,3 +27,5 @@ MCP_URL = os.getenv("MCP_URL", MCP_URL)
 WEBCHAT_HOST = os.getenv("WEBCHAT_HOST", WEBCHAT_HOST)
 WEBCHAT_PORT = int(os.getenv("WEBCHAT_PORT", WEBCHAT_PORT))
 LOG_LEVEL = os.getenv("LOG_LEVEL", LOG_LEVEL).upper()
+LOG_MAX_BYTES = int(os.getenv("LOG_MAX_BYTES", LOG_MAX_BYTES))
+LOG_BACKUP_COUNT = int(os.getenv("LOG_BACKUP_COUNT", LOG_BACKUP_COUNT))
