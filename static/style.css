@@ -307,6 +307,51 @@ main {
 .msg.error summary { color: #900; }
 .msg.error summary::after { background: #fcc; }
 
+/* Table and chart messages start collapsed (see addMessage in chat.js). Give
+   their summaries a rotating disclosure triangle and an "expand" hint so it's
+   obvious there's content to open. Mirrors the .tool-details summary pattern. */
+.msg.table > summary,
+.msg.chart > summary {
+  display: flex;
+  align-items: center;
+  list-style: none;
+}
+
+.msg.table > summary::-webkit-details-marker,
+.msg.chart > summary::-webkit-details-marker {
+  display: none;
+}
+
+.msg.table > summary::before,
+.msg.chart > summary::before {
+  content: "▶";
+  font-size: 10px;
+  margin-right: 6px;
+  flex: 0 0 auto;
+  font-style: normal;
+  transition: transform 0.2s;
+}
+
+.msg.table[open] > summary::before,
+.msg.chart[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+/* "Tap to expand" hint inside the collapsed summary; hidden once opened. */
+.msg.table .expand-hint,
+.msg.chart .expand-hint {
+  margin-left: 8px;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.msg.table[open] .expand-hint,
+.msg.chart[open] .expand-hint {
+  display: none;
+}
+
 .msg.force {
   align-self: stretch;
   max-width: 100%;
@@ -354,7 +399,13 @@ main {
   display: none;
 }
 
-/* "Download CSV" link in the table message header (inside <summary>). */
+/* "Download CSV" links live in the table footer (.table-actions), so they
+   only appear once the table is expanded -- not in the collapsed header. */
+.msg.table .table-actions {
+  margin-top: 8px;
+  text-align: right;
+}
+
 .msg.table .table-download {
   margin-left: 10px;
   font-style: normal;

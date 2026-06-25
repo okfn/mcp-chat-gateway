@@ -79,8 +79,17 @@ chat:
   send: Enviar
   # Rótulo exibido antes de cada link de fonte na resposta do bot.
   sourceLabel: 'Fonte:'
+  # Dica no cabeçalho de uma tabela/gráfico recolhido para deixar claro que pode
+  # ser aberto.
+  expandHint: toque para ver
+  # Rótulo de cabeçalho de uma mensagem de ferramenta injetada (forçada).
+  force:
+    label: Mensagem
   # Controles da mensagem de tabela: link de download CSV e o recolhimento de linhas.
   table:
+    # Rótulo do cabeçalho recolhido, ex. "Tabela (42 linhas): nome, populacao, ...".
+    label: Tabela
+    rows: linhas
     download: Baixar CSV
     downloadExcel: Baixar CSV para Excel/Windows
     showAll: Mostrar tudo
@@ -88,6 +97,8 @@ chat:
   # Controles da mensagem de gráfico: botões de exportação no cabeçalho.
   # Mantenha-os curtos: compartilham uma única linha.
   chart:
+    # Rótulo do cabeçalho recolhido, ex. "Gráfico: Populacao por departamento".
+    label: Gráfico
     png: Baixar PNG
     copy: Copiar imagem
     copied: Copiado!

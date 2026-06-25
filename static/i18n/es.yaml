@@ -79,8 +79,17 @@ chat:
   send: Enviar
   # Etiqueta que aparece antes de cada enlace de fuente en la respuesta del bot.
   sourceLabel: 'Fuente:'
+  # Pista en el encabezado de una tabla/gráfico plegado para dejar claro que se
+  # puede abrir.
+  expandHint: tocar para ver
+  # Etiqueta de encabezado de un mensaje de herramienta inyectado (forzado).
+  force:
+    label: Mensaje
   # Controles del mensaje de tabla: enlace de descarga CSV y el plegado de filas.
   table:
+    # Etiqueta del encabezado plegado, ej. "Tabla (42 filas): nombre, poblacion, ...".
+    label: Tabla
+    rows: filas
     download: Descargar CSV
     downloadExcel: Descargar CSV para Excel/Windows
     showAll: Ver todo
@@ -88,6 +97,8 @@ chat:
   # Controles del mensaje de gráfico: botones de exportación en el encabezado.
   # Mantenerlos cortos: comparten una sola línea.
   chart:
+    # Etiqueta del encabezado plegado, ej. "Gráfico: Poblacion por departamento".
+    label: Gráfico
     png: Descargar PNG
     copy: Copiar imagen
     copied: ¡Copiado!
