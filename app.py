@@ -361,22 +361,11 @@ def chat():
     if openai_tools:
         logger.info(f"Sending {len(openai_tools)} tools to {settings.AI_MODEL}")
 
-    # Build the system prompt as three layers:
-    #   1. Constitution     - chat-wide behaviour (language + data discipline).
-    #   2. Toolset doctrine  - what these tools are about, published by the MCP
-    #                          server in its `instructions` (empty on older
-    #                          servers, in which case this layer is skipped).
-    #   3. Tool list         - the concrete tool names available this request.
-    tool_names = [t["name"] for t in mcp_tools] if mcp_tools else []
-
     constitution = (
-        "You answer questions using the available data tools. "
         "Reply in the user's language, concise, data first.\n"
         "DATA DISCIPLINE: every factual claim (numbers, names, dates, "
-        "categories) MUST come from a tool result. Never invent or fill gaps "
-        "from your own knowledge. If no tool can answer, call the fallback "
-        "tool whose name ends in `no_tool_disponible` with a short reason and "
-        "stop.\n"
+        "categories) MUST come from a tool result, never from your own "
+        "knowledge.\n"
         "ADDING CONTEXT: you MAY add interpretation or context, but ONLY in a "
         "final, clearly separated section whose heading means 'not from the "
         "data' (e.g. 'Note (not from the data):'), written in the user's "
@@ -388,8 +377,13 @@ def chat():
     parts = [constitution]
     if _mcp_instructions:
         parts.append(_mcp_instructions)
-    if tool_names:
-        parts.append("Available tools: " + ", ".join(tool_names) + ".")
+    else:
+        # Fallback only when the server ships no doctrine of its own.
+        parts.append(
+            "Answer every question using at least one of the available tools. "
+            "If no tool fits, call the fallback tool whose name ends in "
+            "`no_tool_disponible` with a short reason and stop."
+        )
 
     system_msg = {"role": "system", "content": "\n\n".join(parts)}
     messages = [system_msg] + messages
