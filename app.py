@@ -373,12 +373,7 @@ def chat():
     if _mcp_instructions:
         parts.append(_mcp_instructions)
     else:
-        # Fallback only when the server ships no doctrine of its own.
-        parts.append(
-            "Answer every question using at least one of the available tools. "
-            "If no tool fits, call the fallback tool whose name ends in "
-            "`no_tool_disponible` with a short reason and stop."
-        )
+        logger.warning("MCP instructions not available; system prompt will be incomplete.")
 
     system_msg = {"role": "system", "content": "\n\n".join(parts)}
     messages = [system_msg] + messages
