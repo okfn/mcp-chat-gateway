@@ -45,6 +45,15 @@ app = Flask(__name__, static_folder="static")
 # Session ID obtained after MCP initialize handshake
 _mcp_session_id = None
 
+# Free-text doctrine the MCP server publishes in its initialize result
+# (`instructions` field of the MCP spec). Describes what this deployment's
+# tools are about; merged into the system prompt. Empty if the server sets none.
+# https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle
+# E.g. "This MCP server exposes tools for querying the Open Knowledge Foundation's
+# datasets, including CSVs, PDFs, and charts. Use them to answer questions about
+# open data."
+_mcp_instructions = ""
+
 # Cached MCP tool catalog: (fetched_at_epoch, tools_list). Tools are static
 # for the life of the MCP server, so we cache them. Calling /tools will
 # force a refresh.
@@ -83,7 +92,7 @@ def _parse_mcp_response(resp):
 
 def mcp_initialize():
     """Perform MCP initialize handshake and store session ID."""
-    global _mcp_session_id
+    global _mcp_session_id, _mcp_instructions
     req_body = {
         "jsonrpc": "2.0",
         "id": 0,
@@ -111,6 +120,9 @@ def mcp_initialize():
         logger.info(f"MCP session initialized: {_mcp_session_id}")
 
     parsed = _parse_mcp_response(resp)
+    # Capture the server's `instructions` (the toolset doctrine). Previously
+    # parsed and thrown away; now fed into the system prompt by chat().
+    _mcp_instructions = parsed.get("result", {}).get("instructions", "") or ""
     logger.debug({
         "label": "mcp_initialize",
         "request": {"url": settings.MCP_URL, "headers": req_headers, "body": req_body},
@@ -349,22 +361,37 @@ def chat():
     if openai_tools:
         logger.info(f"Sending {len(openai_tools)} tools to {settings.AI_MODEL}")
 
-    # Build system prompt telling the AI to use its tools
+    # Build the system prompt as three layers:
+    #   1. Constitution     - chat-wide behaviour (language + data discipline).
+    #   2. Toolset doctrine  - what these tools are about, published by the MCP
+    #                          server in its `instructions` (empty on older
+    #                          servers, in which case this layer is skipped).
+    #   3. Tool list         - the concrete tool names available this request.
     tool_names = [t["name"] for t in mcp_tools] if mcp_tools else []
-    system_msg = {
-        "role": "system",
-        "content": (
-            "You are a specialized assistant that ONLY answers questions using the available tools. "
-            "You MUST call at least one tool for every user question. "
-            "Available tools: " + ", ".join(tool_names) + ". "
-            "If none of the available tools can answer the question, "
-            "call the `no_tool_disponible` tool with a short reason "
-            "explaining why no other tool fits — do NOT answer from your "
-            "own knowledge under any circumstance.\n"
-            "After tool results are returned, synthesise a concise reply "
-            "in the user's language using ONLY those results."
-        ),
-    }
+
+    constitution = (
+        "You answer questions using the available data tools. "
+        "Reply in the user's language, concise, data first.\n"
+        "DATA DISCIPLINE: every factual claim (numbers, names, dates, "
+        "categories) MUST come from a tool result. Never invent or fill gaps "
+        "from your own knowledge. If no tool can answer, call the fallback "
+        "tool whose name ends in `no_tool_disponible` with a short reason and "
+        "stop.\n"
+        "ADDING CONTEXT: you MAY add interpretation or context, but ONLY in a "
+        "final, clearly separated section whose heading means 'not from the "
+        "data' (e.g. 'Note (not from the data):'), written in the user's "
+        "language. Never blend that commentary into the data-backed answer. "
+        "If you have nothing data-backed to add, omit the section entirely - "
+        "do not pad the reply."
+    )
+
+    parts = [constitution]
+    if _mcp_instructions:
+        parts.append(_mcp_instructions)
+    if tool_names:
+        parts.append("Available tools: " + ", ".join(tool_names) + ".")
+
+    system_msg = {"role": "system", "content": "\n\n".join(parts)}
     messages = [system_msg] + messages
 
     def generate():
