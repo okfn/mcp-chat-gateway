@@ -45,13 +45,8 @@ app = Flask(__name__, static_folder="static")
 # Session ID obtained after MCP initialize handshake
 _mcp_session_id = None
 
-# Free-text doctrine the MCP server publishes in its initialize result
-# (`instructions` field of the MCP spec). Describes what this deployment's
-# tools are about; merged into the system prompt. Empty if the server sets none.
-# https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle
-# E.g. "This MCP server exposes tools for querying the Open Knowledge Foundation's
-# datasets, including CSVs, PDFs, and charts. Use them to answer questions about
-# open data."
+# `instructions`, a field of the MCP spec, describes what a plugin's
+# tools are about. It's merged into the system prompt.
 _mcp_instructions = ""
 
 # Cached MCP tool catalog: (fetched_at_epoch, tools_list). Tools are static
