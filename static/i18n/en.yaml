@@ -92,8 +92,17 @@ chat:
   send: Send
   # Label shown before each citation/source link in a bot reply.
   sourceLabel: 'Source:'
+  # Hint shown in the header of a collapsed table/chart message so it's clear
+  # the user can open it.
+  expandHint: tap to expand
+  # Header label for an injected (forced) tool message.
+  force:
+    label: Message
   # Table message controls: CSV download link and the row-collapse toggle.
   table:
+    # Collapsed-header label, e.g. "Table (42 rows): name, population, ...".
+    label: Table
+    rows: rows
     download: Download CSV
     downloadExcel: Download CSV for Excel/Windows
     showAll: Show all
@@ -101,6 +110,8 @@ chat:
   # Chart message controls: export buttons in the chart header. Keep these
   # short -- they all share one line.
   chart:
+    # Collapsed-header label, e.g. "Chart: Population by department".
+    label: Chart
     # Download the chart as a PNG image.
     png: Download PNG
     # Copy the chart image to the clipboard (for pasting into docs/slides).

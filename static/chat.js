@@ -122,19 +122,39 @@ function buildSources(sources) {
   return div;
 }
 
+// Small muted "tap to expand" hint appended to a collapsed table/chart
+// summary, so it's obvious the message can be opened. CSS hides it once the
+// <details> is open (.msg.table[open] .expand-hint { display: none }).
+function makeExpandHint() {
+  const hint = document.createElement("span");
+  hint.className = "expand-hint";
+  hint.textContent = t("chat.expandHint") || "tap to expand";
+  return hint;
+}
+
 function addMessage(role, text, sources) {
   const div = document.createElement("details");
   div.className = "msg " + role;
-  div.open = true;
+  // Data-heavy messages (tables and charts) start collapsed to save space and
+  // reduce clutter; everything else stays open. Their headers carry a content
+  // summary so the collapsed message is still informative.
+  div.open = role !== "table" && role !== "chart";
 
   const title = document.createElement("summary");
-  if (role === "force" || role === "table" || role === "chart") {
-    const titles = { table: "MCP Tool (human) Table", chart: "MCP Tool (human) Chart", force: "MCP Tool (human) Message" };
-    title.textContent = titles[role];
-    if (role === "table" && Array.isArray(text) && text.length) {
-      title.appendChild(buildCSVDownload(text));
-    }
-
+  if (role === "table" && Array.isArray(text)) {
+    const headers = text.length ? text[0].map(String) : [];
+    const rowCount = Math.max(0, text.length - 1);
+    const preview = headers.slice(0, 4).join(", ") + (headers.length > 4 ? "..." : "");
+    const rowsWord = t("chat.table.rows") || "rows";
+    const label = t("chat.table.label") || "Table";
+    title.textContent = label + " (" + rowCount + " " + rowsWord + ")" + (preview ? ": " + preview : "");
+    title.appendChild(makeExpandHint());
+  } else if (role === "chart" && text && typeof text === "object") {
+    const label = t("chat.chart.label") || "Chart";
+    title.textContent = label + (text.title ? ": " + text.title : "");
+    title.appendChild(makeExpandHint());
+  } else if (role === "force") {
+    title.textContent = t("chat.force.label") || "Message";
   } else {
     const labels = { user: "You", assistant: "Assistant", error: "Error" };
     title.className = "msg-summary msg-summary-" + role;
@@ -144,6 +164,14 @@ function addMessage(role, text, sources) {
   if (role === "table" && Array.isArray(text)) {
     div.appendChild(buildTable(text));
     div.appendChild(buildSources(sources));
+    // CSV download links live in the body (footer), not the summary, so they
+    // only show once the table is expanded.
+    if (text.length) {
+      const actions = document.createElement("div");
+      actions.className = "table-actions";
+      actions.appendChild(buildCSVDownload(text));
+      div.appendChild(actions);
+    }
   } else if (role === "chart" && typeof text === "object") {
     div.appendChild(buildChart(text));
     div.appendChild(buildSources(sources));
