@@ -363,7 +363,7 @@ def chat():
         "knowledge.\n"
         "ADDING CONTEXT: you MAY add interpretation or context, but ONLY in a "
         "final, clearly separated section whose heading means 'not from the "
-        "data' (e.g. 'Note (not from the data):'), written in the user's "
+        "data' (e.g. 'AI Interpretation (not supported by data):'), written in the user's "
         "language. Never blend that commentary into the data-backed answer. "
         "If you have nothing data-backed to add, omit the section entirely - "
         "do not pad the reply."
