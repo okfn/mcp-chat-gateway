@@ -373,7 +373,10 @@ def chat():
     if _mcp_instructions:
         parts.append(_mcp_instructions)
     else:
-        logger.warning("MCP instructions not available; system prompt will be incomplete.")
+        logger.warning(
+            "MCP instructions not available; system prompt will be incomplete. "
+            "You must add them with ´set_plugin_info´ in your plugin's MCP registration."
+        )
 
     system_msg = {"role": "system", "content": "\n\n".join(parts)}
     messages = [system_msg] + messages
