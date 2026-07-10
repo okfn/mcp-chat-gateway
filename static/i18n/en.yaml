@@ -128,3 +128,9 @@ chat:
     spec: Spec (JSON)
     # Brief feedback when a download action fails.
     failed: Failed
+  # Assistant reply footer: link that saves the raw reply as a Markdown (.md)
+  # file.
+  answer:
+    download: Download this answer (markdown)
+    # Fallback filename stem when the reply's first line yields no usable slug.
+    filename: answer
