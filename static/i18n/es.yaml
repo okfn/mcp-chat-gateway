@@ -108,3 +108,9 @@ chat:
     csvExcel: Datos (CSV Excel)
     spec: Especificación (JSON)
     failed: Error
+  # Pie del mensaje del asistente: enlace que guarda la respuesta como archivo
+  # Markdown (.md).
+  answer:
+    download: Descargar esta respuesta (markdown)
+    # Nombre de archivo de respaldo cuando la primera línea no da un slug útil.
+    filename: respuesta

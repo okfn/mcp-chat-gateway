@@ -184,6 +184,24 @@ function addMessage(role, text, sources) {
     // Make all links open in new tab
     content.querySelectorAll("a").forEach(a => { a.target = "_blank"; a.rel = "noopener"; });
     div.appendChild(content);
+    // The reply arrives as raw markdown (that's what marked renders above), so
+    // it can be saved as-is as a .md file. Footer link mirrors the table CSV
+    // downloads; the filename comes from the first line of the reply.
+    if (role === "assistant" && window.DownloadUtil) {
+      const actions = document.createElement("div");
+      actions.className = "answer-actions";
+      const stem = DownloadUtil.filenameSlug(
+        String(text).split("\n")[0].slice(0, 60),
+        t("chat.answer.filename") || "answer"
+      );
+      actions.appendChild(DownloadUtil.buildDownloadLink(
+        String(text),
+        "text/markdown;charset=utf-8",
+        stem + ".md",
+        t("chat.answer.download") || "Download this answer (markdown)"
+      ));
+      div.appendChild(actions);
+    }
   } else {
     const linked = linkify(text);
     if (linked) { div.appendChild(linked); } else { div.appendChild(document.createTextNode(text)); }

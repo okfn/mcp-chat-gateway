@@ -497,6 +497,32 @@ main {
   white-space: normal;
 }
 
+/* "Download this answer (markdown)" button under an assistant reply. It is an
+   <a download> (the shared builder in download.js emits .table-download) but
+   styled as a button, matching the table "Show all" toggle so it stands out
+   against the white message background. */
+.msg.assistant .answer-actions {
+  margin-top: 8px;
+  font-size: 13px;
+  text-align: right;
+}
+
+.msg.assistant .table-download {
+  display: inline-block;
+  padding: 4px 14px;
+  font-style: normal;
+  font-weight: 600;
+  color: #130436;
+  background: #75adec;
+  border: 1px solid #5a96d8;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+.msg.assistant .table-download:hover {
+  background: #85b8f0;
+}
+
 .markdown p {
   margin-bottom: 0.5em;
 }
