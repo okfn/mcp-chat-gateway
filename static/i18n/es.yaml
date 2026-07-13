@@ -112,5 +112,9 @@ chat:
   # Markdown (.md).
   answer:
     download: Descargar esta respuesta (markdown)
+    # Botón que copia el markdown crudo de la respuesta al portapapeles.
+    copy: Copiar respuesta
+    copied: ¡Copiado!
+    copyFailed: Error al copiar
     # Nombre de archivo de respaldo cuando la primera línea no da un slug útil.
     filename: respuesta

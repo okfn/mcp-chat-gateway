@@ -50,6 +50,49 @@ function buildCSVDownload(rows) {
   return frag;
 }
 
+function copyTextToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text);
+  }
+  return new Promise((resolve, reject) => {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { /* not supported */ }
+    ta.remove();
+    if (ok) { resolve(); } else { reject(new Error("execCommand copy failed")); }
+  });
+}
+
+// "Copy answer" button for the assistant reply footer. Copies the raw
+// markdown (the same content the .md download saves), not the rendered HTML.
+// Feedback mirrors the chart export buttons: swap the label for 2s.
+function buildCopyAnswerButton(text) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "table-download answer-copy";
+  btn.textContent = t("chat.answer.copy") || "Copy this answer (markdown)";
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const original = btn.textContent;
+    const flash = (label) => {
+      btn.textContent = label;
+      btn.disabled = true;
+      setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 2000);
+    };
+    copyTextToClipboard(text)
+      .then(() => flash(t("chat.answer.copied") || "Copied!"))
+      .catch(() => flash(t("chat.answer.copyFailed") || "Copy failed"));
+  });
+  return btn;
+}
+
 function buildTable(rows) {
   const wrap = document.createElement("div");
   wrap.className = "table-wrap";
@@ -194,6 +237,7 @@ function addMessage(role, text, sources) {
         String(text).split("\n")[0].slice(0, 60),
         t("chat.answer.filename") || "answer"
       );
+      actions.appendChild(buildCopyAnswerButton(String(text)));
       actions.appendChild(DownloadUtil.buildDownloadLink(
         String(text),
         "text/markdown;charset=utf-8",
