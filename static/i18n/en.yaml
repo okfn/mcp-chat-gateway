@@ -132,5 +132,9 @@ chat:
   # file.
   answer:
     download: Download this answer (markdown)
+    # Button that copies the reply's raw markdown to the clipboard.
+    copy: Copy answer
+    copied: Copied!
+    copyFailed: Copy failed
     # Fallback filename stem when the reply's first line yields no usable slug.
     filename: answer

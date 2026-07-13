@@ -523,6 +523,22 @@ main {
   background: #85b8f0;
 }
 
+/* "Copy answer" shares the download link's pill styling but is a <button>
+   (nothing to download; it writes to the clipboard at click time), so reset
+   the browser button font and add spacing between the two controls. */
+.msg.assistant button.table-download {
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+/* Disabled while showing click feedback ("Copied!" / "Copy failed"). */
+.msg.assistant button.table-download:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
 .markdown p {
   margin-bottom: 0.5em;
 }
