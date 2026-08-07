@@ -118,3 +118,48 @@ chat:
     copyFailed: Error al copiar
     # Nombre de archivo de respaldo cuando la primera línea no da un slug útil.
     filename: respuesta
+
+
+# Contenido de about.html.
+about:
+  hero:
+    title: Respuestas de IA trazables para datos públicos
+    p1: 'A medida que la inteligencia artificial se convierte cada vez más en la interfaz principal para acceder a la información, <strong>garantizar que las respuestas generadas por IA sean precisas, transparentes y fundamentadas en fuentes confiables es cada vez más importante</strong>. Las instituciones públicas que publican datos abiertos enfrentan un nuevo desafío: cómo asegurar que las herramientas de IA que referencian sus conjuntos de datos proporcionen respuestas verificables y confiables.'
+    p2: 'Estamos construyendo un puente técnico (usando el Protocolo de Contexto de Modelos) que conecta la IA directamente con portales de datos oficiales como CKAN, <strong>para que las respuestas generadas por IA puedan rastrearse hasta sus fuentes originales</strong>. Esto refuerza la confianza en las instituciones públicas, ayuda a combatir la desinformación, hace que los datos abiertos sean más accesibles para los ciudadanos y garantiza que las investigaciones o el periodismo basados en esos datos estén fundamentados en hechos.'
+  partners:
+    title: Socios
+    p: 'Este proyecto es una iniciativa colaborativa basada en desafíos del mundo real. Dos programas piloto están teniendo lugar en 2026 bajo el paraguas de la <a href="https://www.digitalpublicgoods.net/">Alianza de Bienes Públicos Digitales (DPGA)</a> en asociación con gobiernos nacionales para convertirse en una referencia reproducible y escalable de integración responsable y transparente de IA con infraestructura de datos abiertos.'
+  moreInfo:
+    title: 'Más información...'
+    p: 'Para más información visitá la <a href="#">página oficial (en construcción)</a> de la iniciativa.'
+
+
+# Contenido de how_to.html.
+howTo:
+  intro:
+    title: Acerca de esta interfaz de chat
+    h2Works: Cómo funciona
+    pWorks: 'Este es un chat que responde preguntas <strong>exclusivamente</strong> usando las herramientas MCP disponibles.'
+    h2Use: Cómo usar
+    pUse: Escribí tu pregunta en el campo de texto. La IA determinará automáticamente qué herramientas llamar según tu pregunta y proporcionará respuestas basadas únicamente en los resultados de las herramientas.
+    h2Expect: Qué esperar
+    li1: 'La IA <strong>debe llamar al menos una herramienta</strong> por cada pregunta que hagas'
+    li2: "La IA <strong>nunca responde desde su propio \"conocimiento\"</strong> — solo usa los resultados de las herramientas"
+    li3: 'Si ninguna herramienta puede responder tu pregunta, verás esta respuesta: <em>"No tenemos ninguna herramienta interna para responder tu pregunta."</em>'
+    h2Structured: Contenido estructurado
+    pStructured: 'La interfaz de chat tiene 5 tipos de salidas:'
+    outputAssistant: '<strong>Asistente</strong>: Lo que la IA decidió responder con toda la información.'
+    outputTable: '<strong>Tabla</strong>: Datos en bruto de la fuente (devueltos por el MCP).'
+    outputChart: '<strong>Gráfico</strong>: Una visualización interactiva (devuelta por el MCP).'
+    outputForce: '<strong>Mensaje</strong>: Un mensaje escrito por el desarrollador de la herramienta que no es procesado por el LLM.'
+    outputSource: '<strong>Fuente</strong>: Un enlace a la fuente de los datos usados para dar la respuesta.'
+  tools:
+    title: Herramientas MCP disponibles
+    p1: La siguiente lista de herramientas es la información disponible en el MCP.
+    p2: Podés usar esta lista como guía para entender qué tipo de preguntas hacer y las capacidades del chat.
+    noTools: No hay herramientas disponibles en este momento. Por favor, verificá que el servidor MCP esté en funcionamiento.
+  technical:
+    title: Detalles técnicos
+    p: 'Para más información sobre implementaciones técnicas podés visitar los siguientes enlaces:'
+    liServer: 'Servidor MCP de OKFN: <a href="https://github.com/okfn/mcp-ckan">El repositorio</a> del servidor MCP.'
+    liChat: 'Interfaz de chat: <a href="https://github.com/okfn/mcp-chat-gateway">El repositorio</a> de esta interfaz.'

@@ -118,3 +118,48 @@ chat:
     copyFailed: Falha ao copiar
     # Nome de arquivo de reserva quando a primeira linha não gera um slug útil.
     filename: resposta
+
+
+# Conteúdo de about.html.
+about:
+  hero:
+    title: Respostas de IA rastreáveis para dados públicos
+    p1: 'À medida que a inteligência artificial se torna cada vez mais a interface principal para acessar informações, <strong>garantir que as respostas geradas por IA sejam precisas, transparentes e fundamentadas em fontes confiáveis é cada vez mais importante</strong>. As instituições públicas que publicam dados abertos enfrentam um novo desafio: como garantir que as ferramentas de IA que referenciam seus conjuntos de dados forneçam respostas verificáveis e confiáveis.'
+    p2: 'Estamos construindo uma ponte técnica (usando o Protocolo de Contexto de Modelos) que conecta a IA diretamente a portais de dados oficiais como o CKAN, <strong>para que as respostas geradas por IA possam ser rastreadas até suas fontes originais</strong>. Isso reforça a confiança nas instituições públicas, ajuda a combater a desinformação, torna os dados abertos mais acessíveis aos cidadãos e garante que pesquisas ou jornalismo baseados nesses dados estejam fundamentados em fatos.'
+  partners:
+    title: Parceiros
+    p: 'Este projeto é uma iniciativa colaborativa baseada em desafios do mundo real. Dois programas piloto estão ocorrendo em 2026 sob o guarda-chuva da <a href="https://www.digitalpublicgoods.net/">Aliança de Bens Públicos Digitais (DPGA)</a> em parceria com governos nacionais para se tornar uma referência reproduzível e escalável de integração responsável e transparente de IA com infraestrutura de dados abertos.'
+  moreInfo:
+    title: 'Mais informações...'
+    p: 'Para mais informações, visite a <a href="#">página oficial (em construção)</a> da iniciativa.'
+
+
+# Conteúdo de how_to.html.
+howTo:
+  intro:
+    title: Sobre esta interface de chat
+    h2Works: Como funciona
+    pWorks: 'Este é um chat que responde perguntas <strong>exclusivamente</strong> usando as ferramentas MCP disponíveis.'
+    h2Use: Como usar
+    pUse: Digite sua pergunta no campo de texto. A IA determinará automaticamente quais ferramentas chamar com base na sua pergunta e fornecerá respostas baseadas exclusivamente nos resultados das ferramentas.
+    h2Expect: O que esperar
+    li1: 'A IA <strong>deve chamar pelo menos uma ferramenta</strong> para cada pergunta que você fizer'
+    li2: "A IA <strong>nunca responde a partir do seu próprio \"conhecimento\"</strong> — apenas usa os resultados das ferramentas"
+    li3: 'Se nenhuma ferramenta puder responder à sua pergunta, você verá esta resposta: <em>"Não temos nenhuma ferramenta interna para responder à sua pergunta."</em>'
+    h2Structured: Conteúdo estruturado
+    pStructured: 'A interface de chat tem 5 tipos de saídas:'
+    outputAssistant: '<strong>Assistente</strong>: O que a IA decidiu responder com todas as informações.'
+    outputTable: '<strong>Tabela</strong>: Dados brutos da fonte (retornados pelo MCP).'
+    outputChart: '<strong>Gráfico</strong>: Uma visualização interativa (retornada pelo MCP).'
+    outputForce: '<strong>Mensagem</strong>: Uma mensagem escrita pelo desenvolvedor da ferramenta que não é processada pelo LLM.'
+    outputSource: '<strong>Fonte</strong>: Um link para a fonte dos dados usados para fornecer a resposta.'
+  tools:
+    title: Ferramentas MCP disponíveis
+    p1: A lista de ferramentas a seguir é a informação disponível no MCP.
+    p2: Você pode usar esta lista como guia para entender que tipo de perguntas fazer e as capacidades do chat.
+    noTools: Nenhuma ferramenta disponível no momento. Verifique se o servidor MCP está em execução.
+  technical:
+    title: Detalhes técnicos
+    p: 'Para mais informações sobre implementações técnicas, você pode visitar os seguintes links:'
+    liServer: 'Servidor MCP da OKFN: <a href="https://github.com/okfn/mcp-ckan">O repositório</a> do servidor MCP.'
+    liChat: 'Interface de chat: <a href="https://github.com/okfn/mcp-chat-gateway">O repositório</a> desta interface.'
