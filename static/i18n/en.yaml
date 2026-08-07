@@ -138,3 +138,48 @@ chat:
     copyFailed: Copy failed
     # Fallback filename stem when the reply's first line yields no usable slug.
     filename: answer
+
+
+# about.html body content.
+about:
+  hero:
+    title: Traceable AI Answers for Public Data
+    p1: 'As artificial intelligence increasingly becomes a primary interface for accessing information, <strong>ensuring that AI-generated responses are accurate, transparent, and grounded in trusted sources is increasingly important</strong>. Public institutions publishing open data face a new challenge: how to ensure that AI tools referencing their datasets provide verifiable and trustworthy answers.'
+    p2: 'We are building a technical bridge (using the Model Context Protocol) that connects AI directly to official data portals like CKAN, <strong>so that AI-generated responses can be traced back to their original sources</strong>. This reinforces trust in public institutions, helps fight misinformation, makes open data more accessible for citizens and ensures that research or journalism based on that data is grounded in fact.'
+  partners:
+    title: Partners
+    p: 'This project is a collaborative initiative grounded in real-world challenges. Two pilot programmes are taking place in 2026 under the umbrella of the <a href="https://www.digitalpublicgoods.net/">Digital Public Goods Alliance (DPGA)</a> in partnership with national governments to become a reproducible and scalable reference of responsible and transparent AI integration with open data infrastructure.'
+  moreInfo:
+    title: 'More info...'
+    p: 'For more information visit the <a href="#">official page (TBD)</a> of the initiative.'
+
+
+# how_to.html body content.
+howTo:
+  intro:
+    title: About This Chat Interface
+    h2Works: How It Works
+    pWorks: 'This is a chat that answers questions <strong>exclusively</strong> using available MCP tools.'
+    h2Use: How to Use
+    pUse: Type your question in the input field at the bottom. The AI will automatically determine which tools to call based on your question and provide answers based solely on the tool results.
+    h2Expect: What to Expect
+    li1: 'The AI <strong>must call at least one tool</strong> for every question you ask'
+    li2: "The AI <strong>never answers from its own \"knowledge\"</strong> — only uses tool results"
+    li3: 'If no tool can answer your question, you will see this response: <em>"We don''t have any internal tool to answer your question."</em>'
+    h2Structured: Structured Content
+    pStructured: 'The chat interface has 5 types of outputs:'
+    outputAssistant: '<strong>Assistant</strong>: What the AI has decided to respond with all the information.'
+    outputTable: '<strong>Table</strong>: Raw data from the source (returned by the MCP).'
+    outputChart: '<strong>Chart</strong>: An interactive visualization (returned by the MCP).'
+    outputForce: '<strong>Force</strong>: A message written by the tool developer that is not processed by the LLM.'
+    outputSource: '<strong>Source</strong>: A link to the source of the data used to provide the response.'
+  tools:
+    title: Available MCP Tools
+    p1: The following tools list is the information available on the MCP.
+    p2: You can use this list as a guideline to understand what type of questions to ask and the capabilities of the chat.
+    noTools: No tools available at this time. Please check if the MCP server is running.
+  technical:
+    title: Technical Details
+    p: 'For more information on technical implementations you can visit the following links:'
+    liServer: 'OKFN MCP Server: <a href="https://github.com/okfn/mcp-ckan">The repository</a> for the MCP server.'
+    liChat: 'Chat Interface: <a href="https://github.com/okfn/mcp-chat-gateway">The repository</a> for this Chat Interface.'
