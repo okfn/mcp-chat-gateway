@@ -24,7 +24,7 @@
 
   const AVAILABLE = ["en", "es", "pt"];
   const STORAGE_KEY = "okfn-mcp-chat-lang";
-  const I18N_BASE = "/static/i18n";
+  const I18N_BASE = "static/i18n";
 
   // bundled[locale] holds the parsed-and-flattened keys from each yaml file.
   // overrides holds the parsed overrides.yaml (keyed by locale, same shape).

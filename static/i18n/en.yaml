@@ -26,7 +26,7 @@ nav:
 
 # Alpha-stage banner across the top of every page. Contains a link to /how-to.
 alert:
-  alpha: 'This project is still in alpha. See the <a href="/how-to">How to</a> section for a guide.'
+  alpha: 'This project is still in alpha. See the <a href="how-to">How to</a> section for a guide.'
 
 
 # Right-side drawer that lists every MCP tool grouped by plugin.
