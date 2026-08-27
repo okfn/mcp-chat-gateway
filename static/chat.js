@@ -297,7 +297,7 @@ async function sendMessage() {
   showTyping();
 
   try {
-    const resp = await fetch("/chat", {
+    const resp = await fetch("chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ messages: conversation }),
@@ -520,7 +520,7 @@ function renderToolsCatalog(catalog) {
 
 async function loadToolsCatalog() {
   try {
-    const resp = await fetch("/tools");
+    const resp = await fetch("tools");
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const catalog = await resp.json();
     renderToolsCatalog(catalog);
@@ -651,7 +651,7 @@ function renderResourcesCatalog(catalog) {
       actionsRow.className = "resource-actions";
 
       const downloadLink = document.createElement("a");
-      downloadLink.href = `/resource?uri=${encodeURIComponent(r.uri)}`;
+      downloadLink.href = `resource?uri=${encodeURIComponent(r.uri)}`;
       downloadLink.target = "_blank";
       downloadLink.rel = "noopener";
       if (!isLink) {
@@ -703,7 +703,7 @@ function renderResourcesCatalog(catalog) {
 
 async function loadResourcesCatalog() {
   try {
-    const resp = await fetch("/resources");
+    const resp = await fetch("resources");
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const catalog = await resp.json();
     renderResourcesCatalog(catalog);
@@ -905,7 +905,7 @@ function renderLandingPlugins(catalog) {
 async function loadLandingPlugins() {
   if (!landingPlugins) return;
   try {
-    const resp = await fetch("/tools");
+    const resp = await fetch("tools");
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const catalog = await resp.json();
     renderLandingPlugins(catalog);

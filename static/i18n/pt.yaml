@@ -16,7 +16,7 @@ nav:
 
 # Banner que avisa que o projeto está em alfa. Inclui link para /how-to.
 alert:
-  alpha: 'Este projeto ainda está em alfa. Consulte a seção <a href="/how-to">Como usar</a> para um guia.'
+  alpha: 'Este projeto ainda está em alfa. Consulte a seção <a href="how-to">Como usar</a> para um guia.'
 
 
 # Gaveta lateral direita com as ferramentas MCP agrupadas por plugin.

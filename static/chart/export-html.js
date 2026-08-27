@@ -14,7 +14,7 @@
   // Must match the <script> tag in templates/index.html so the fetch is
   // served from the browser's HTTP cache (the page already loaded it).
   const CHARTJS_URL = "https://cdn.jsdelivr.net/npm/chart.js@4";
-  const RENDERER_URL = "/static/chart/render.js";
+  const RENDERER_URL = "static/chart/render.js";
 
   let sourcesPromise = null;
 
