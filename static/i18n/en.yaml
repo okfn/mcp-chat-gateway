@@ -16,17 +16,14 @@
 nav:
   # Product name shown in the top-left. Treat as a brand — usually NOT translated.
   brand: Open Data Chat
+  # Small status badge displayed next to the product name.
+  alphaBadge: Alpha
   # Button that opens the right-side tools drawer.
   tools: Tools
   # Button that opens the right-side resources drawer (PDFs, docs, …).
   resources: Resources
   howTo: How to
   about: About
-
-
-# Alpha-stage banner across the top of every page. Contains a link to /how-to.
-alert:
-  alpha: 'This project is still in alpha. See the <a href="how-to">How to</a> section for a guide.'
 
 
 # Right-side drawer that lists every MCP tool grouped by plugin.

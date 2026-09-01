@@ -22,14 +22,6 @@ body > header {
   padding: 12px 20px;
 }
 
-.alert-message {
-  text-align: center;
-  font-style: italic;
-  font-size: 12px;
-  padding: 10px 0px;
-  background: lightpink;
-}
-
 .nav {
   display: flex;
   justify-content: space-between;
@@ -38,8 +30,23 @@ body > header {
 }
 
 .nav-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 16px;
   font-weight: 600;
+}
+
+.alpha-badge {
+  padding: 2px 7px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  color: #d8d9e0;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  text-transform: uppercase;
 }
 
 .nav-links {
