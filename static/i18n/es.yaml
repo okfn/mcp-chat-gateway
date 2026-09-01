@@ -6,17 +6,14 @@
 nav:
   # Nombre del producto (arriba a la izquierda). Es marca — normalmente no se traduce.
   brand: Chat de Datos Abiertos
+  # Insignia de estado junto al nombre del producto.
+  alphaBadge: Alfa
   # Botón que abre el panel lateral con las herramientas.
   tools: Herramientas
   # Botón que abre el panel lateral con los documentos de referencia.
   resources: Documentos
   howTo: Cómo usar
   about: Acerca de
-
-
-# Banner que avisa que el proyecto está en alfa. Incluye un link a /how-to.
-alert:
-  alpha: 'Este proyecto está en fase alfa. Consulte la sección <a href="how-to">Cómo usar</a> para una guía.'
 
 
 # Panel lateral derecho con la lista de herramientas MCP agrupadas por plugin.
