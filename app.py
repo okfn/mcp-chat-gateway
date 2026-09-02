@@ -477,13 +477,11 @@ def list_tools():
     """Return the MCP tool catalog grouped by plugin, for the home-page drawer.
 
     The MCP server attaches ``_meta.plugin`` and ``_meta.plugin_metadata`` to
-    every tool it registers through a plugin sub-registry — the latter is a
-    dict whose currently-defined key is ``urls`` (more fields may be added
-    server-side later).  This endpoint is a thin grouper; it does not know
-    about specific plugins.  Each plugin group carries every URL the plugin
-    declared (Homepage, Documentation, Repository, Issues, Changelog, …) and
-    the UI renders one badge per URL.  Tools without any plugin meta land
-    in a synthetic "core" group.
+    every tool it registers through a plugin sub-registry. The metadata can
+    include a user-facing display name, description, sample questions and
+    project URLs. This endpoint is a thin grouper; it does not know about
+    specific plugins. Tools without any plugin meta land in a synthetic
+    "core" group.
     """
     try:
         mcp_tools = get_mcp_tools(force_refresh=True)
@@ -500,6 +498,7 @@ def list_tools():
             plugin,
             {
                 "plugin": plugin,
+                "display_name": plugin_metadata.get("display_name") or "",
                 "description": plugin_metadata.get("description") or "",
                 "sample_questions": plugin_metadata.get("sample_questions") or [],
                 "urls": plugin_metadata.get("urls") or [],
@@ -550,6 +549,7 @@ def list_resources_endpoint():
             plugin,
             {
                 "plugin": plugin,
+                "display_name": plugin_metadata.get("display_name") or "",
                 "description": plugin_metadata.get("description") or "",
                 "urls": plugin_metadata.get("urls") or [],
                 "resources": [],

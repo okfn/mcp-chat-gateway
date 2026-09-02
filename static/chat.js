@@ -475,7 +475,7 @@ function renderToolsCatalog(catalog) {
     const header = document.createElement("header");
     header.className = "tools-group-header";
     const title = document.createElement("h3");
-    title.textContent = prettyPluginName(group.plugin);
+    title.textContent = group.display_name || prettyPluginName(group.plugin);
     header.appendChild(title);
     section.appendChild(header);
 
@@ -602,7 +602,7 @@ function renderResourcesCatalog(catalog) {
     const header = document.createElement("header");
     header.className = "tools-group-header";
     const title = document.createElement("h3");
-    title.textContent = prettyPluginName(group.plugin);
+    title.textContent = group.display_name || prettyPluginName(group.plugin);
     header.appendChild(title);
     section.appendChild(header);
 
@@ -840,7 +840,7 @@ function renderLandingPlugins(catalog) {
     head.className = "plugin-card-head";
     const title = document.createElement("h3");
     title.className = "plugin-card-title";
-    title.textContent = prettyPluginName(group.plugin);
+    title.textContent = group.display_name || prettyPluginName(group.plugin);
     head.appendChild(title);
 
     const toolCount = Array.isArray(group.tools) ? group.tools.length : 0;
