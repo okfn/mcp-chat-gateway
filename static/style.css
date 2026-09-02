@@ -1062,7 +1062,23 @@ main {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  /* Cap the list so plugins with many sample questions do not stretch the
+     card; ~42px per one-line chip, so 400px shows at least 7-9 before
+     scrolling. */
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #c7d3ee transparent;
 }
+
+.plugin-card-chips::-webkit-scrollbar { width: 6px; }
+.plugin-card-chips::-webkit-scrollbar-thumb {
+  background: #c7d3ee;
+  border-radius: 3px;
+}
+
+.plugin-card-chips .chip { flex-shrink: 0; }
 
 .chip {
   text-align: left;
