@@ -1087,6 +1087,29 @@ main {
 
 .plugin-card-chips .chip { flex-shrink: 0; }
 
+.plugin-card-limitations {
+  padding: 12px 14px;
+  border: 1px solid #e3e7f0;
+  border-radius: 10px;
+  background: #f8f9fc;
+  color: #555;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.plugin-card-limitations .plugin-card-section-label {
+  margin: 0 0 6px;
+}
+
+.plugin-card-limitations ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.plugin-card-limitations li + li {
+  margin-top: 4px;
+}
+
 .chip {
   text-align: left;
   background: #f4f6fb;

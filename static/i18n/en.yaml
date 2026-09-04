@@ -73,6 +73,8 @@ landing:
     empty: No data sources available yet.
     # Section label above the clickable sample-question chips on each card.
     sampleLabel: Try one of these
+    # Heading above limitations declared by the plugin.
+    limitationsLabel: Current limitations
     # Tool-count badge on each card. {n} is the number of tools.
     toolsCount: '{n} tools'
     # Singular form when there is exactly one tool.

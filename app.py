@@ -478,10 +478,10 @@ def list_tools():
 
     The MCP server attaches ``_meta.plugin`` and ``_meta.plugin_metadata`` to
     every tool it registers through a plugin sub-registry. The metadata can
-    include a user-facing display name, description, sample questions and
-    project URLs. This endpoint is a thin grouper; it does not know about
-    specific plugins. Tools without any plugin meta land in a synthetic
-    "core" group.
+    include a user-facing display name, description, sample questions,
+    limitations and project URLs. This endpoint is a thin grouper; it does not
+    know about specific plugins. Tools without any plugin meta land in a
+    synthetic "core" group.
     """
     try:
         mcp_tools = get_mcp_tools(force_refresh=True)
@@ -501,6 +501,7 @@ def list_tools():
                 "display_name": plugin_metadata.get("display_name") or "",
                 "description": plugin_metadata.get("description") or "",
                 "sample_questions": plugin_metadata.get("sample_questions") or [],
+                "limitations": plugin_metadata.get("limitations") or [],
                 "urls": plugin_metadata.get("urls") or [],
                 "tools": [],
             },
