@@ -881,6 +881,26 @@ function renderLandingPlugins(catalog) {
       card.appendChild(chips);
     }
 
+    const limitations = Array.isArray(group.limitations) ? group.limitations : [];
+    if (limitations.length > 0) {
+      const section = document.createElement("aside");
+      section.className = "plugin-card-limitations";
+
+      const label = document.createElement("p");
+      label.className = "plugin-card-section-label";
+      label.textContent = t("landing.plugins.limitationsLabel");
+      section.appendChild(label);
+
+      const list = document.createElement("ul");
+      limitations.forEach((limitation) => {
+        const item = document.createElement("li");
+        item.textContent = limitation;
+        list.appendChild(item);
+      });
+      section.appendChild(list);
+      card.appendChild(section);
+    }
+
     if (Array.isArray(group.urls) && group.urls.length > 0) {
       const footer = document.createElement("div");
       footer.className = "plugin-card-footer";

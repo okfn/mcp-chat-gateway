@@ -60,6 +60,8 @@ landing:
     empty: Ainda não há fontes de dados disponíveis.
     # Rótulo acima dos chips de perguntas-exemplo de cada cartão.
     sampleLabel: Experimente uma destas
+    # Título acima das limitações declaradas pelo plugin.
+    limitationsLabel: Limitações atuais
     # Quantidade de ferramentas no cartão. {n} é o número.
     toolsCount: '{n} ferramentas'
     # Forma singular quando há exatamente uma.
