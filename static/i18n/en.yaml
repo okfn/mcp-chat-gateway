@@ -11,6 +11,10 @@
 # HTML is allowed in values (rendered via innerHTML). Keep the same tag
 # structure as the English source so links/IDs continue to work.
 
+# Shared institutional footer shown on supporting pages.
+siteFooter:
+  mission: Open knowledge for a fair, sustainable and open future.
+
 
 # Top navigation bar shown on every page.
 nav:

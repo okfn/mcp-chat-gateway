@@ -1,6 +1,10 @@
 # Spanish (es) translations for the Open Data Chat gateway.
 # See en.yaml for the canonical source — keep keys in sync with that file.
 
+# Pie institucional compartido en las páginas secundarias.
+siteFooter:
+  mission: Conocimiento abierto para un futuro justo, sostenible y abierto.
+
 
 # Barra de navegación superior, presente en todas las páginas.
 nav:

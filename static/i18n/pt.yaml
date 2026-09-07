@@ -1,6 +1,10 @@
 # Portuguese (pt) translations for the Open Data Chat gateway.
 # See en.yaml for the canonical source — keep keys in sync with that file.
 
+# Rodapé institucional compartilhado nas páginas secundárias.
+siteFooter:
+  mission: Conhecimento aberto para um futuro justo, sustentável e aberto.
+
 
 # Barra de navegação superior, presente em todas as páginas.
 nav:

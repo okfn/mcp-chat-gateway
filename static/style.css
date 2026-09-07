@@ -1203,3 +1203,286 @@ main {
   background: #fff;
   color: #1a1a2e;
 }
+
+
+/* ---------- Open Knowledge visual identity ---------- */
+
+:root {
+  --okfn-cyan: #00d1ff;
+  --okfn-cyan-dark: #00a9cf;
+  --okfn-ink: #111111;
+  --okfn-charcoal: #2d2d2d;
+  --okfn-paper: #ffffff;
+  --okfn-soft: #f4fbfd;
+  --okfn-line: #cbd8dc;
+}
+
+body {
+  background: var(--okfn-paper);
+  color: var(--okfn-ink);
+}
+
+body > header {
+  background: var(--okfn-cyan);
+  color: var(--okfn-ink);
+  padding: 10px 28px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.14);
+}
+
+.nav {
+  width: 100%;
+  max-width: 1240px;
+}
+
+.nav-title {
+  gap: 10px;
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.brand-mark img {
+  display: block;
+  width: 118px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.nav-link,
+.nav-button {
+  color: var(--okfn-ink);
+  font-weight: 600;
+}
+
+.alpha-badge {
+  border-color: rgba(0, 0, 0, 0.45);
+  color: var(--okfn-ink);
+  background: rgba(255, 255, 255, 0.28);
+}
+
+#landing {
+  padding: 74px 24px 56px;
+  background: var(--okfn-paper);
+}
+
+.landing-hero {
+  max-width: 820px;
+  gap: 22px;
+}
+
+.landing-title {
+  color: var(--okfn-ink);
+  font-size: clamp(38px, 5vw, 56px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+.landing-tagline {
+  max-width: 650px;
+  color: #383838;
+  font-size: 16px;
+}
+
+.landing-search {
+  max-width: 680px;
+  border: 1.5px solid var(--okfn-ink);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.18);
+}
+
+.landing-search:focus-within {
+  border-color: var(--okfn-cyan-dark);
+  box-shadow: 0 0 0 3px rgba(0, 209, 255, 0.2), 0 3px 0 rgba(0, 0, 0, 0.18);
+}
+
+.landing-search-btn {
+  background: var(--okfn-ink);
+}
+
+.landing-search-btn:hover:not(:disabled) {
+  background: #333;
+}
+
+.landing-meta {
+  color: #555;
+}
+
+.landing-meta a,
+.link-button,
+.landing-footer a {
+  color: #006f86;
+  font-weight: 600;
+}
+
+.landing-plugins {
+  max-width: 900px;
+  margin-top: 54px;
+}
+
+.plugin-card {
+  border: 1px solid var(--okfn-line);
+  border-radius: 6px;
+  box-shadow: none;
+}
+
+.plugin-card:hover {
+  transform: none;
+  border-color: var(--okfn-cyan-dark);
+  box-shadow: 0 10px 24px rgba(0, 92, 112, 0.08);
+}
+
+.plugin-card-title,
+.tools-tool summary {
+  color: var(--okfn-ink);
+}
+
+.plugin-card-section-label {
+  color: #56656a;
+}
+
+.chip {
+  background: var(--okfn-soft);
+  border-color: #d8e8ec;
+  color: var(--okfn-ink);
+  border-radius: 4px;
+}
+
+.chip:hover {
+  background: #e4f8fc;
+  border-color: var(--okfn-cyan-dark);
+}
+
+.plugin-card-chips {
+  scrollbar-color: var(--okfn-cyan-dark) transparent;
+}
+
+.plugin-card-chips::-webkit-scrollbar-thumb {
+  background: var(--okfn-cyan-dark);
+}
+
+.plugin-card-limitations {
+  background: #f6f6f6;
+  border-color: #dedede;
+}
+
+.site-footer {
+  width: 100%;
+  margin-top: auto;
+  padding: 28px;
+  background: var(--okfn-charcoal);
+  color: #f3f3f3;
+}
+
+.site-footer-inner {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.site-footer-brand {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: 6px 10px;
+  background: #fff;
+}
+
+.site-footer-brand img {
+  display: block;
+  width: 150px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.site-footer p {
+  max-width: 720px;
+  color: #d8d8d8;
+  font-size: 13px;
+  line-height: 1.55;
+  text-align: right;
+}
+
+.landing-footer {
+  max-width: none;
+  text-align: initial;
+  margin-top: 0;
+}
+
+body.chat > .landing-footer {
+  display: none;
+}
+
+.about-section {
+  max-width: 880px;
+}
+
+.about-section h1 {
+  color: var(--okfn-ink);
+}
+
+.about-section a {
+  color: #007f9b;
+}
+
+@media (max-width: 760px) {
+  body > header {
+    padding: 9px 16px;
+  }
+
+  .nav,
+  .nav-links,
+  .site-footer-inner {
+    flex-wrap: wrap;
+  }
+
+  .nav {
+    gap: 10px 18px;
+  }
+
+  .nav-links {
+    gap: 12px;
+  }
+
+  .brand-mark img {
+    width: 92px;
+  }
+
+  #landing {
+    padding: 44px 16px 36px;
+  }
+
+  .site-footer-inner {
+    justify-content: center;
+  }
+
+  .site-footer p {
+    text-align: center;
+  }
+}
+
+@media (max-width: 520px) {
+  .brand-mark {
+    display: none;
+  }
+
+  .nav-links {
+    width: 100%;
+  }
+
+  .nav-link,
+  .nav-button {
+    font-size: 13px;
+  }
+
+  .lang-switcher {
+    margin-left: 0;
+  }
+}
+
+.site-footer a { color: #7de8ff; }
+.site-footer a:hover { color: #ffffff; }
