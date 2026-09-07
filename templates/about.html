@@ -8,27 +8,7 @@
 </head>
 <body>
 
-<header>
-  <nav class="nav">
-    <div class="nav-title">
-      <a class="brand-mark" href="https://okfn.org" aria-label="Open Knowledge Foundation">
-        <img src="static/lg-okfn.svg" alt="Open Knowledge Foundation">
-      </a>
-      <a href="./" class="nav-link" data-i18n="nav.brand">Open Data Chat</a>
-      <span class="alpha-badge" data-i18n="nav.alphaBadge">Alpha</span>
-    </div>
-    <div class="nav-links">
-      <a href="about" class="nav-link" data-i18n="nav.about">About</a>
-      <a href="how-to" class="nav-link" data-i18n="nav.howTo">How it works</a>
-      <a href="how-to#technical-details" class="nav-link" data-i18n="nav.technicalInfo">Technical info</a>
-      <div class="lang-switcher" role="group" aria-label="Language">
-        <button type="button" class="lang-btn" data-lang-switch="en" aria-pressed="false">EN</button>
-        <button type="button" class="lang-btn" data-lang-switch="es" aria-pressed="false">ES</button>
-        <button type="button" class="lang-btn" data-lang-switch="pt" aria-pressed="false">PT</button>
-      </div>
-    </div>
-  </nav>
-</header>
+{% include "partials/header.html" %}
 
 <main>
   <section class="about-section">
@@ -67,24 +47,7 @@
   </section>
 </main>
 
-<footer class="site-footer landing-footer">
-  <div class="site-footer-inner">
-    <div class="site-footer-top">
-      <a class="site-footer-brand" href="https://okfn.org" aria-label="Open Knowledge Foundation">
-        <img src="static/lg-okfn.svg" alt="Open Knowledge Foundation">
-      </a>
-      <nav class="site-footer-links" aria-label="Open Knowledge Foundation policies">
-        <a href="https://okfn.org/en/privacy-policy/" data-i18n="siteFooter.privacy">Privacy policy</a>
-        <a href="https://okfn.org/en/ip-policy/" data-i18n="siteFooter.ipPolicy">IP policy</a>
-        <a href="https://okfn.org/cookie-policy/" data-i18n="siteFooter.cookies">Cookie policy</a>
-        <a href="https://okfn.org/en/terms-of-use/" data-i18n="siteFooter.terms">Terms of use</a>
-      </nav>
-    </div>
-    <p class="site-footer-legal" data-i18n="siteFooter.legal">
-      The Open Knowledge Foundation is a not-for-profit organisation. It is incorporated in England &amp; Wales as a company limited by guarantee, with company number 05133759. Registered office: Open Knowledge Foundation, 86-90 Paul Street, London, EC2A 4NE, United Kingdom.
-    </p>
-  </div>
-</footer>
+{% include "partials/footer.html" %}
 
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <script src="static/i18n.js"></script>
