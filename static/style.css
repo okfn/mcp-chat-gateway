@@ -1231,7 +1231,7 @@ body > header {
 
 .nav {
   width: 100%;
-  max-width: 1240px;
+  max-width: none;
 }
 
 .nav-title {
@@ -1246,8 +1246,8 @@ body > header {
 
 .brand-mark img {
   display: block;
-  width: 118px;
-  height: 32px;
+  width: 142px;
+  height: 34px;
   object-fit: contain;
 }
 
@@ -1264,8 +1264,8 @@ body > header {
 }
 
 #landing {
-  padding: 74px 24px 56px;
-  background: var(--okfn-paper);
+  padding: 72px 24px 64px;
+  background: #f7f7f7;
 }
 
 .landing-hero {
@@ -1275,7 +1275,7 @@ body > header {
 
 .landing-title {
   color: var(--okfn-ink);
-  font-size: clamp(38px, 5vw, 56px);
+  font-size: clamp(42px, 5vw, 64px);
   font-weight: 800;
   letter-spacing: -0.035em;
 }
@@ -1287,7 +1287,7 @@ body > header {
 }
 
 .landing-search {
-  max-width: 680px;
+  max-width: 760px;
   border: 1.5px solid var(--okfn-ink);
   box-shadow: 0 3px 0 rgba(0, 0, 0, 0.18);
 }
@@ -1369,9 +1369,11 @@ body > header {
 
 .site-footer {
   width: 100%;
+  min-height: 150px;
   margin-top: auto;
-  padding: 28px;
+  padding: 34px 40px 28px;
   background: var(--okfn-charcoal);
+  border-top: 1px solid #444;
   color: #f3f3f3;
 }
 
@@ -1388,8 +1390,6 @@ body > header {
 .site-footer-brand {
   display: inline-flex;
   flex-shrink: 0;
-  padding: 6px 10px;
-  background: #fff;
 }
 
 .site-footer-brand img {
@@ -1397,6 +1397,7 @@ body > header {
   width: 150px;
   height: 42px;
   object-fit: contain;
+  filter: grayscale(1) brightness(0) invert(1);
 }
 
 .site-footer p {
@@ -1486,3 +1487,135 @@ body.chat > .landing-footer {
 
 .site-footer a { color: #7de8ff; }
 .site-footer a:hover { color: #ffffff; }
+
+
+/* Navigation layout matching the OKFN IATI sandbox mockup. */
+.nav-leading {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+}
+
+.nav-menu {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.nav-menu summary {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  list-style: none;
+  border-radius: 4px;
+}
+
+.nav-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-menu summary:hover,
+.nav-menu[open] summary {
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.nav-menu-panel {
+  position: absolute;
+  z-index: 220;
+  top: calc(100% + 10px);
+  left: 0;
+  min-width: 180px;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid #cfd8dc;
+  border-radius: 6px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+}
+
+.nav-menu-action {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  color: var(--okfn-ink);
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.nav-menu-action:hover {
+  background: var(--okfn-soft);
+}
+
+body > header .nav-link,
+body > header .nav-button {
+  color: #fff;
+}
+
+body > header .brand-mark img {
+  filter: grayscale(1) brightness(0) invert(1);
+}
+
+body > header .alpha-badge {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.75);
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.nav-links {
+  gap: 34px;
+}
+
+.lang-switcher {
+  gap: 0;
+  margin-left: 4px;
+  padding: 3px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.lang-btn {
+  color: #222;
+  padding: 4px 9px;
+}
+
+.lang-btn:hover {
+  color: #005d72;
+  background: #e7faff;
+}
+
+.lang-btn.is-active {
+  color: #fff;
+  background: #007d99;
+}
+
+@media (max-width: 900px) {
+  .nav-links {
+    gap: 16px;
+  }
+
+  .nav-title > .nav-link {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .nav-leading {
+    gap: 10px;
+  }
+
+  .nav-links {
+    width: 100%;
+    justify-content: center;
+  }
+}

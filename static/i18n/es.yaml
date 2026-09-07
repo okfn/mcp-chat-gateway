@@ -16,7 +16,8 @@ nav:
   tools: Herramientas
   # Botón que abre el panel lateral con los documentos de referencia.
   resources: Documentos
-  howTo: Cómo usar
+  howTo: Cómo funciona
+  technicalInfo: Información técnica
   about: Acerca de
 
 

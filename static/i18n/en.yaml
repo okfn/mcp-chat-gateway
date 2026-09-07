@@ -26,7 +26,8 @@ nav:
   tools: Tools
   # Button that opens the right-side resources drawer (PDFs, docs, …).
   resources: Resources
-  howTo: How to
+  howTo: How it works
+  technicalInfo: Technical info
   about: About
 
 
