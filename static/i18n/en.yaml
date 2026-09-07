@@ -14,6 +14,11 @@
 # Shared institutional footer shown on supporting pages.
 siteFooter:
   mission: Open knowledge for a fair, sustainable and open future.
+  privacy: Privacy policy
+  ipPolicy: IP policy
+  cookies: Cookie policy
+  terms: Terms of use
+  legal: 'The Open Knowledge Foundation is a not-for-profit organisation. It is incorporated in England & Wales as a company limited by guarantee, with company number 05133759. Registered office: Open Knowledge Foundation, 86-90 Paul Street, London, EC2A 4NE, United Kingdom.'
 
 
 # Top navigation bar shown on every page.

@@ -4,6 +4,11 @@
 # Rodapé institucional compartilhado nas páginas secundárias.
 siteFooter:
   mission: Conhecimento aberto para um futuro justo, sustentável e aberto.
+  privacy: Política de privacidade
+  ipPolicy: Política de propriedade intelectual
+  cookies: Política de cookies
+  terms: Termos de uso
+  legal: 'A Open Knowledge Foundation é uma organização sem fins lucrativos. Está constituída na Inglaterra e no País de Gales como uma empresa limitada por garantia, com o número 05133759. Endereço registrado: Open Knowledge Foundation, 86-90 Paul Street, Londres, EC2A 4NE, Reino Unido.'
 
 
 # Barra de navegação superior, presente em todas as páginas.

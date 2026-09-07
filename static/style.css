@@ -1215,6 +1215,9 @@ main {
   --okfn-paper: #ffffff;
   --okfn-soft: #f4fbfd;
   --okfn-line: #cbd8dc;
+  --okfn-footer-border: #4b4b4b;
+  --okfn-footer-text: #f3f3f3;
+  --okfn-footer-muted: #bdbdbd;
 }
 
 body {
@@ -1369,22 +1372,27 @@ body > header {
 
 .site-footer {
   width: 100%;
-  min-height: 150px;
+  min-height: 164px;
   margin-top: auto;
-  padding: 34px 40px 28px;
+  padding: 28px 40px 24px;
   background: var(--okfn-charcoal);
-  border-top: 1px solid #444;
-  color: #f3f3f3;
+  border-top: 1px solid var(--okfn-footer-border);
+  color: var(--okfn-footer-text);
 }
 
 .site-footer-inner {
   width: 100%;
   max-width: 1240px;
   margin: 0 auto;
+}
+
+.site-footer-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 32px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--okfn-footer-border);
 }
 
 .site-footer-brand {
@@ -1394,18 +1402,35 @@ body > header {
 
 .site-footer-brand img {
   display: block;
-  width: 150px;
-  height: 42px;
+  width: 142px;
+  height: 38px;
   object-fit: contain;
   filter: grayscale(1) brightness(0) invert(1);
 }
 
-.site-footer p {
-  max-width: 720px;
-  color: #d8d8d8;
-  font-size: 13px;
-  line-height: 1.55;
-  text-align: right;
+.site-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px 22px;
+}
+
+.site-footer-links a {
+  color: var(--okfn-footer-text);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.site-footer-links a:hover {
+  text-decoration: underline;
+}
+
+.site-footer-legal {
+  margin-top: 16px;
+  color: var(--okfn-footer-muted);
+  font-size: 10px;
+  line-height: 1.5;
 }
 
 .landing-footer {
@@ -1437,7 +1462,7 @@ body.chat > .landing-footer {
 
   .nav,
   .nav-links,
-  .site-footer-inner {
+  .site-footer-top {
     flex-wrap: wrap;
   }
 
@@ -1457,11 +1482,15 @@ body.chat > .landing-footer {
     padding: 44px 16px 36px;
   }
 
-  .site-footer-inner {
+  .site-footer-top {
     justify-content: center;
   }
 
-  .site-footer p {
+  .site-footer-links {
+    justify-content: center;
+  }
+
+  .site-footer-legal {
     text-align: center;
   }
 }
@@ -1485,8 +1514,8 @@ body.chat > .landing-footer {
   }
 }
 
-.site-footer a { color: #7de8ff; }
-.site-footer a:hover { color: #ffffff; }
+.site-footer a { color: var(--okfn-footer-text); }
+.site-footer a:hover { color: var(--okfn-paper); }
 
 
 /* Navigation layout matching the OKFN IATI sandbox mockup. */
