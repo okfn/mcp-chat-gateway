@@ -1584,6 +1584,26 @@ body.chat > .landing-footer {
 
 
 /* Navigation layout matching the OKFN IATI sandbox mockup. */
+.okfn-institutional-menu {
+  width: 100%;
+  height: 0;
+  transition: height 0.25s ease;
+}
+
+.okfn-institutional-menu:has(#ok-panel.open) {
+  height: 123px;
+}
+
+#ok-panel-wrapper {
+  float: right;
+}
+
+#ok-panel-wrapper:not([data-breakpoint*="px"]) > .ok-ribbon {
+  margin-top: 0;
+  margin-bottom: 1.5em;
+  background-color: transparent;
+}
+
 .nav-leading {
   display: flex;
   align-items: center;
