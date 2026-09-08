@@ -48,13 +48,17 @@ resourcesDrawer:
 # Pantalla de inicio (antes de la primera pregunta).
 landing:
   # Título principal. Cortó, accionable.
-  title: Preguntale a los datos abiertos
-  # Subtítulo. Dos frases como máximo; explica el valor.
-  tagline: 'Respuestas reales sobre datos públicos reales. Cada respuesta está respaldada por una herramienta — nunca inventada por el modelo.'
+  title: Consulte los datos de la Ayuda Internacional.
+  # Texto introductorio debajo del título. Los enlaces HTML son intencionales.
+  intro:
+    prototype: 'Esta interfaz de chat es un prototipo público de un <strong>sistema de IA trazable</strong> desarrollado por Open Knowledge Foundation (OKFN). <a href="about">Acerca de &nearr;</a>'
+    sources: 'Las respuestas se elaboran <strong>exclusivamente</strong> con información de conjuntos de datos públicos sobre cooperación para el desarrollo y recursos humanitarios de la Iniciativa Internacional para la Transparencia de la Ayuda (IATI).'
+    verification: 'Cada respuesta es precisa, transparente y verificable; se genera procesando archivos oficiales, nunca con el conocimiento propio de la IA. <a href="how-to">Cómo funciona &nearr;</a>'
+  invitation: ¡Probalo!
   # Placeholder dentro del campo de búsqueda vacío.
-  placeholder: Hacé una pregunta sobre datos abiertos...
+  placeholder: Preguntale lo que quieras a IATI...
   # Texto del botón de enviar.
-  ask: Preguntar
+  ask: Enviar
 
   # Mini-links debajo del buscador.
   meta:
