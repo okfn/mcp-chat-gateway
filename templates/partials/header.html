@@ -1,3 +1,19 @@
+<div class="okfn-institutional-menu">
+  <div id="ok-panel" class="closed">
+    <div class="container">
+      <iframe
+        src="https://a.okfn.org/html/oki/panel/panel.html"
+        title="Open Knowledge Foundation navigation"
+        scrolling="no"></iframe>
+    </div>
+  </div>
+  <div id="ok-panel-wrapper">
+    <a class="white ok-ribbon closed" role="button" tabindex="0" aria-label="Open Open Knowledge Foundation navigation" aria-expanded="false">
+      <img src="https://a.okfn.org/html/oki/panel/assets/images/oki-ribbon.png" alt="Open Knowledge Foundation">
+    </a>
+  </div>
+</div>
+
 <header>
   <nav class="nav">
     <div class="nav-leading">
@@ -30,3 +46,25 @@
     </div>
   </nav>
 </header>
+<script defer src="https://a.okfn.org/html/oki/panel/assets/js/frontend.js"></script>
+<script>
+  (() => {
+    const ribbon = document.querySelector("#ok-panel-wrapper .ok-ribbon");
+    if (!ribbon) return;
+
+    ribbon.addEventListener("click", () => {
+      const willOpen = ribbon.classList.contains("closed");
+      ribbon.setAttribute("aria-expanded", String(willOpen));
+      ribbon.setAttribute(
+        "aria-label",
+        `${willOpen ? "Close" : "Open"} Open Knowledge Foundation navigation`
+      );
+    });
+    ribbon.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        ribbon.click();
+      }
+    });
+  })();
+</script>
