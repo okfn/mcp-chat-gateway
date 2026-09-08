@@ -1688,6 +1688,12 @@ body > header .alpha-badge {
   gap: 34px;
 }
 
+@media (min-width: 701px) {
+  body > header .nav {
+    padding-right: 170px;
+  }
+}
+
 .lang-switcher {
   gap: 0;
   margin-left: 4px;
