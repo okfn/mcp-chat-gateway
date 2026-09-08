@@ -21,7 +21,6 @@ from flask import (
     redirect,
     render_template,
     request,
-    send_from_directory,
 )
 
 import settings
@@ -323,7 +322,7 @@ def sse_event(event, data):
 @app.route("/")
 def index():
     """Serve the chat HTML page."""
-    return send_from_directory(os.path.dirname(__file__), "templates/index.html")
+    return render_template("index.html", show_catalog_menu=True)
 
 
 @app.route("/chat", methods=["POST"])

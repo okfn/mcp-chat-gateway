@@ -438,6 +438,7 @@ const toolsClose = document.getElementById("tools-close");
 const toolsDrawer = document.getElementById("tools-drawer");
 const toolsOverlay = document.getElementById("tools-overlay");
 const toolsContent = document.getElementById("tools-content");
+const navMenu = document.querySelector(".nav-menu");
 
 let toolsLoaded = false;
 
@@ -551,6 +552,7 @@ function closeToolsDrawer() {
 
 if (toolsToggle && toolsClose && toolsDrawer && toolsOverlay) {
   toolsToggle.addEventListener("click", () => {
+    if (navMenu) navMenu.open = false;
     if (toolsDrawer.classList.contains("open")) closeToolsDrawer();
     else openToolsDrawer();
   });
@@ -734,6 +736,7 @@ function closeResourcesDrawer() {
 
 if (resourcesToggle && resourcesClose && resourcesDrawer && resourcesOverlay) {
   resourcesToggle.addEventListener("click", () => {
+    if (navMenu) navMenu.open = false;
     if (resourcesDrawer.classList.contains("open")) closeResourcesDrawer();
     else openResourcesDrawer();
   });

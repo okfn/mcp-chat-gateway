@@ -1,6 +1,15 @@
 # Spanish (es) translations for the Open Data Chat gateway.
 # See en.yaml for the canonical source — keep keys in sync with that file.
 
+# Pie institucional compartido en las páginas secundarias.
+siteFooter:
+  mission: Conocimiento abierto para un futuro justo, sostenible y abierto.
+  privacy: Política de privacidad
+  ipPolicy: Política de propiedad intelectual
+  cookies: Política de cookies
+  terms: Términos de uso
+  legal: 'Open Knowledge Foundation es una organización sin fines de lucro. Está constituida en Inglaterra y Gales como una compañía limitada por garantía, con el número 05133759. Domicilio registrado: Open Knowledge Foundation, 86-90 Paul Street, Londres, EC2A 4NE, Reino Unido.'
+
 
 # Barra de navegación superior, presente en todas las páginas.
 nav:
@@ -12,7 +21,8 @@ nav:
   tools: Herramientas
   # Botón que abre el panel lateral con los documentos de referencia.
   resources: Documentos
-  howTo: Cómo usar
+  howTo: Cómo funciona
+  technicalInfo: Información técnica
   about: Acerca de
 
 
