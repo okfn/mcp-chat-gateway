@@ -3,6 +3,14 @@ const inputEl = document.getElementById("input");
 const sendBtn = document.getElementById("send");
 
 let conversation = [];
+// Server-assigned conversation id, echoed back on every turn so the backend
+// (when a storage plugin is installed) can group messages. Null until the
+// server sends it in the first `meta` SSE event.
+let conversationId = null;
+// Whether this conversation is actually being persisted server-side. The
+// server reports it in the `meta` event (`storage.is_enabled()`); the UI can
+// use it to gate history/feedback features. False until the server says so.
+let storageEnabled = false;
 
 // i18n: gateway-owned strings live in /static/i18n/*.yaml.
 // Logic and the language switcher are in /static/i18n.js (loaded before
@@ -300,7 +308,7 @@ async function sendMessage() {
     const resp = await fetch("chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: conversation }),
+      body: JSON.stringify({ messages: conversation, conversation_id: conversationId }),
     });
 
     await readSSE(resp);
@@ -371,7 +379,12 @@ async function readSSE(response) {
 
 function handleSSEEvent(eventType, data) {
   // We received a internal event from the server (tool call, error, or final result).
-  if (eventType === "tool_call") {
+  if (eventType === "meta") {
+    // First event of each turn: remember the conversation id the server uses
+    // and whether the backend is persisting this conversation.
+    if (data.conversation_id) conversationId = data.conversation_id;
+    if (typeof data.stored === "boolean") storageEnabled = data.stored;
+  } else if (eventType === "tool_call") {
     addToolCall(data);
   } else if (eventType === "error") {
     hideTyping();
