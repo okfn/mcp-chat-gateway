@@ -805,7 +805,7 @@ if (landingForm && landingInput) {
 if (landingOpenTools) {
   landingOpenTools.addEventListener("click", (e) => {
     e.preventDefault();
-    openToolsDrawer();
+    window.location.href = "/how-to#available-tools";
   });
 }
 
@@ -816,7 +816,7 @@ if (landingEl) {
     const target = e.target;
     if (target && target.id === "landing-footer-tools") {
       e.preventDefault();
-      openToolsDrawer();
+      window.location.href = "/how-to#available-tools";
     }
   });
 }
