@@ -1499,6 +1499,32 @@ body.chat > .landing-footer {
   color: #007f9b;
 }
 
+.about-hero-logo {
+  display: block;
+  width: min(100%, 360px);
+  height: auto;
+  margin: 20px 0 28px;
+}
+
+.about-link-list,
+.how-to-steps {
+  display: grid;
+  gap: 16px;
+}
+
+.how-to-steps {
+  margin: 24px 0 0 24px;
+  color: #444;
+}
+
+.how-to-steps > li {
+  padding-left: 8px;
+}
+
+.how-to-steps h2 {
+  margin-top: 0;
+}
+
 @media (max-width: 760px) {
   body > header {
     padding: 9px 16px;

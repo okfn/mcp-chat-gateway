@@ -13,67 +13,40 @@
 
 <main>
   <section class="about-section">
-    <h1>About This Chat Interface</h1>
-
-    <h2>How It Works</h2>
-    <p>This is a chat that answers questions <strong>exclusively</strong> using available MCP tools.</p>
-
-    <h2>How to Use</h2>
-    <p>Type your question in the input field at the bottom. The AI will automatically determine which tools to call based on your question and provide answers based solely on the tool results.</p>
-
-    <h2>What to Expect</h2>
-    <ul>
-      <li>The AI <strong>must call at least one tool</strong> for every question you ask</li>
-      <li>The AI <strong>never answers from its own "knowledge"</strong> — only uses tool results</li>
-      <li>If no tool can answer your question, you will see this response: <em>"We don't have any internal tool to answer your question."</em></li>
-    </ul>
-
-    <h2>Structured Content</h2>
-    <p> The chat interface has 5 types of outputs:</p>
-    <p>
-      <ul>
-        <li><strong>Assistant</strong>: What the AI has decided to respond with all the information.</li>
-        <li><strong>Table</strong>: Raw data from the source (returned by the MCP).</li>
-        <li><strong>Chart</strong>: An interactive visualization (returned by the MCP).</li>
-        <li><strong>Foce</strong>: A messaged written by the tool developer that it is not processed by the LLM.</li>
-        <li><strong>Source</strong>: A link to the source of the data used to provide the response. </li>
-      </ul>
-    </p>
+    <h1>Traceable AI Answers in Three Steps</h1>
+    <p>This prototype is designed to explore official International Aid Transparency Initiative (IATI) data. Because source verifiability and data provenance are our top priorities, this AI operates under strict rules: it cannot use its general training data, and it is not allowed to guess.</p>
+    <p>Here is how you can explore the data:</p>
+    <ol class="how-to-steps">
+      <li>
+        <h2>Ask your question in plain language</h2>
+        <p>Simply type what you want to know into the search bar. You don’t need to know complex data jargon.</p>
+        <p>Try asking: <em>“What does this IATI file contain?”</em> or <em>“What are the top 5 activities by funding amount?”</em></p>
+      </li>
+      <li>
+        <h2>The AI fetches the official records</h2>
+        <p>Behind the scenes, the AI translates your question and searches directly through the official IATI datasets. If the answer exists in the data, it will pull the exact information. If the data does not contain the answer, the AI will honestly tell you: <em>“We don't have any internal tool to answer your question”</em> rather than making something up.</p>
+      </li>
+      <li>
+        <h2>Explore your verified results</h2>
+        <p>When the AI replies, it provides a clear answer alongside the underlying data. Depending on your question, you might see:</p>
+        <ul>
+          <li><strong>Tables:</strong> Raw data pulled directly from the source.</li>
+          <li><strong>Charts:</strong> Interactive visualisations to help you spot trends.</li>
+          <li><strong>Source Links:</strong> Direct links to the official files used to generate your answer, so you can verify the facts yourself.</li>
+        </ul>
+      </li>
+    </ol>
+    <p>Found a bug? Reach out to us at <a href="mailto:info@okfn.org">info@okfn.org</a>.</p>
   </section>
 
   <section class="about-section">
-    <h1 id="technical-details">Technical Details</h1>
-    <p>
-      The OKFN MCP Platform connects open public data to AI models using the
-      Model Context Protocol (MCP). Its design is guided by two goals:
-      <strong>accuracy</strong>, so answers are computed from official data rather
-      than recalled from model training; and <strong>traceability</strong>, so every
-      answer can link back to its source.
-    </p>
-    <p>The platform consists of:</p>
-    <ul>
-      <li>An MCP server that exposes open datasets as tools an AI can call.</li>
-      <li>A chat gateway that connects an OpenAI-compatible model to the server and renders tables, charts and source links directly from tool results.</li>
-      <li>Modular plugins, each scoped to a focused data domain, that describe their datasets and the questions they can answer.</li>
-    </ul>
-    <p>
-      The complete manual covers the system architecture, setup, plugin and
-      dataset development, deployment and contributing:
-      <a href="https://mcp.okfn.org/docs/" target="_blank" rel="noopener noreferrer">read the MCP Technical Documentation</a>.
-    </p>
-    <p>
-      Source code is available in the
-      <a href="https://github.com/okfn/mcp-server" target="_blank" rel="noopener noreferrer">MCP server repository</a>
-      and the
-      <a href="https://github.com/okfn/mcp-chat-gateway" target="_blank" rel="noopener noreferrer">chat interface repository</a>.
-    </p>
+    <h1 id="technical-details">Technical Details &amp; Documentation</h1>
+    <p>This interface is a public prototype connecting Large Language Models (LLMs) to public datasets using a Model Context Protocol (MCP) server.</p>
+    <p>For documentation, instruction setup, deployment guidelines, or to review the code, please visit our <a href="https://mcp.okfn.org/docs/" target="_blank" rel="noopener noreferrer">Technical Developer Guide</a>.</p>
     <div id="available-tools">
       <h2>Available MCP Tools</h2>
-      <p>
-        These are the tools exposed by the currently connected MCP server. Use
-        the list to understand which questions this chat can answer; expand a
-        tool to read its description.
-      </p>
+      <p>The following tools list is the information available on the MCP.</p>
+      <p>You can use this list as a guideline to understand what type of questions to ask and the capabilities of the chat.</p>
       {% if tools %}
         {% for tool in tools %}
         <details class="tool-details">
@@ -87,9 +60,6 @@
     </div>
   </section>
 
-  <section class="about-section logos">
-    <a href="https://okfn.org"><img src="static/lg-okfn.svg" width="200px"></a>
-  </section>
 </main>
 
 {% include "partials/footer.html" %}
