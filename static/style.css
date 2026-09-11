@@ -1272,19 +1272,6 @@ body > header {
   gap: 10px;
 }
 
-.brand-mark {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.brand-mark img {
-  display: block;
-  width: 142px;
-  height: 34px;
-  object-fit: contain;
-}
-
 .nav-link,
 .nav-button {
   color: var(--okfn-ink);
@@ -1561,10 +1548,6 @@ body.chat > .landing-footer {
     gap: 12px;
   }
 
-  .brand-mark img {
-    width: 92px;
-  }
-
   #landing {
     padding: 44px 16px 36px;
   }
@@ -1584,10 +1567,6 @@ body.chat > .landing-footer {
 }
 
 @media (max-width: 520px) {
-  .brand-mark {
-    display: none;
-  }
-
   .nav-links {
     width: 100%;
   }
@@ -1637,10 +1616,6 @@ body.chat > .landing-footer {
 body > header .nav-link,
 body > header .nav-button {
   color: #fff;
-}
-
-body > header .brand-mark img {
-  filter: grayscale(1) brightness(0) invert(1);
 }
 
 body > header .alpha-badge {
