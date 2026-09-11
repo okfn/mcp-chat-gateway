@@ -438,7 +438,6 @@ const toolsClose = document.getElementById("tools-close");
 const toolsDrawer = document.getElementById("tools-drawer");
 const toolsOverlay = document.getElementById("tools-overlay");
 const toolsContent = document.getElementById("tools-content");
-const navMenu = document.querySelector(".nav-menu");
 
 let toolsLoaded = false;
 
@@ -552,7 +551,6 @@ function closeToolsDrawer() {
 
 if (toolsToggle && toolsClose && toolsDrawer && toolsOverlay) {
   toolsToggle.addEventListener("click", () => {
-    if (navMenu) navMenu.open = false;
     if (toolsDrawer.classList.contains("open")) closeToolsDrawer();
     else openToolsDrawer();
   });
@@ -736,7 +734,6 @@ function closeResourcesDrawer() {
 
 if (resourcesToggle && resourcesClose && resourcesDrawer && resourcesOverlay) {
   resourcesToggle.addEventListener("click", () => {
-    if (navMenu) navMenu.open = false;
     if (resourcesDrawer.classList.contains("open")) closeResourcesDrawer();
     else openResourcesDrawer();
   });
@@ -745,6 +742,14 @@ if (resourcesToggle && resourcesClose && resourcesDrawer && resourcesOverlay) {
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && resourcesDrawer.classList.contains("open")) closeResourcesDrawer();
   });
+}
+
+// Catalog links from supporting pages land on the home page with a fragment.
+// Open the requested panel once its controls are available.
+if (window.location.hash === "#tools" && toolsDrawer) {
+  openToolsDrawer();
+} else if (window.location.hash === "#resources" && resourcesDrawer) {
+  openResourcesDrawer();
 }
 
 // ---------------------------------------------------------------------------
