@@ -1337,6 +1337,29 @@ body > header {
   box-shadow: 0 0 0 3px rgba(0, 209, 255, 0.2), 0 3px 0 rgba(0, 0, 0, 0.18);
 }
 
+.dataset-scope {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px 8px;
+  margin: -8px 0 0;
+  padding: 6px 12px;
+  color: #33484e;
+  background: #e7f7fa;
+  border: 1px solid #bfdee4;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.dataset-scope-label {
+  font-weight: 700;
+}
+
+.dataset-scope-label::after {
+  content: ":";
+}
+
 .landing-search-btn {
   background: var(--okfn-ink);
 }

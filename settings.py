@@ -11,6 +11,13 @@ LOG_LEVEL = "INFO"
 LOG_MAX_BYTES = 50 * 1024 * 1024  # 50 MB per file
 LOG_BACKUP_COUNT = 5  # webchat.log + webchat.log.1 .. .5 (max ~300 MB total)
 
+# Short, user-facing description of the IATI subset loaded by the MCP plugin.
+# Deployments using another source must override this value so the home page
+# always describes the data users are actually querying.
+DATASET_SCOPE = (
+    "Publisher: IADB · Recipient country: Brazil · Record dates: 2004–2030"
+)
+
 
 # Optionally override settings with local_settings.py (not committed to git)
 try:
@@ -29,3 +36,4 @@ WEBCHAT_PORT = int(os.getenv("WEBCHAT_PORT", WEBCHAT_PORT))
 LOG_LEVEL = os.getenv("LOG_LEVEL", LOG_LEVEL).upper()
 LOG_MAX_BYTES = int(os.getenv("LOG_MAX_BYTES", LOG_MAX_BYTES))
 LOG_BACKUP_COUNT = int(os.getenv("LOG_BACKUP_COUNT", LOG_BACKUP_COUNT))
+DATASET_SCOPE = os.getenv("DATASET_SCOPE", DATASET_SCOPE)
