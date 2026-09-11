@@ -13,10 +13,6 @@ siteFooter:
 
 # Barra de navegação superior, presente em todas as páginas.
 nav:
-  # Nome do produto (canto superior esquerdo). É marca — normalmente não se traduz.
-  brand: Chat de Dados Abertos
-  # Selo de status ao lado do nome do produto.
-  alphaBadge: Alfa
   # Botão que abre a gaveta lateral de ferramentas.
   tools: Ferramentas
   # Botão que abre a gaveta lateral de documentos de referência.

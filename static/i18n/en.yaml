@@ -23,10 +23,6 @@ siteFooter:
 
 # Top navigation bar shown on every page.
 nav:
-  # Product name shown in the top-left. Treat as a brand — usually NOT translated.
-  brand: Open Data Chat
-  # Small status badge displayed next to the product name.
-  alphaBadge: Alpha
   # Button that opens the right-side tools drawer.
   tools: Tools
   # Button that opens the right-side resources drawer (PDFs, docs, …).
