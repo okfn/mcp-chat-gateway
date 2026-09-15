@@ -1079,9 +1079,9 @@ main {
   flex-direction: column;
   gap: 6px;
   /* Cap the list so plugins with many sample questions do not stretch the
-     card; ~42px per one-line chip, so 400px shows at least 7-9 before
+     card; ~42px per one-line chip, so 250px shows at least 6 before
      scrolling. */
-  max-height: 400px;
+  max-height: 250px;
   overflow-y: auto;
   padding-right: 4px;
   scrollbar-width: thin;
