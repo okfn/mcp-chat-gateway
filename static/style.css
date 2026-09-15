@@ -910,7 +910,6 @@ main {
 .landing-invitation {
   color: #252525;
   font-size: 13px;
-  margin: 14px 0 2px;
 }
 
 .landing-search {
@@ -1299,7 +1298,7 @@ body > header {
   flex-wrap: wrap;
   justify-content: center;
   gap: 5px 8px;
-  margin: -8px 0 0;
+  margin-bottom: 25px;
   padding: 6px 12px;
   color: #33484e;
   background: #e7f7fa;
@@ -1309,8 +1308,8 @@ body > header {
   line-height: 1.35;
 }
 
-.dataset-scope-label {
-  font-weight: 700;
+.dataset-scope p:not(:last-child) {
+  margin-bottom: 10px;
 }
 
 .dataset-scope-label::after {

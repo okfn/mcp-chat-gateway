@@ -13,10 +13,7 @@ siteFooter:
 
 # Barra de navegación superior, presente en todas las páginas.
 nav:
-  # Botón que abre el panel lateral con las herramientas.
-  tools: Herramientas
-  # Botón que abre el panel lateral con los documentos de referencia.
-  resources: Documentos
+  chat: Chat
   howTo: Cómo funciona
   technicalInfo: Información técnica
   about: Acerca de
@@ -44,15 +41,14 @@ resourcesDrawer:
 # Pantalla de inicio (antes de la primera pregunta).
 landing:
   # Título principal. Cortó, accionable.
-  title: Consulte los datos de la Ayuda Internacional.
+  title: Consulte los Datos Abiertos
   # Texto introductorio debajo del título. Los enlaces HTML son intencionales.
   intro:
     prototype: 'Esta interfaz de chat es un prototipo público de un <strong>sistema de IA trazable</strong> desarrollado por Open Knowledge Foundation (OKFN). <a href="about">Acerca de &nearr;</a>'
-    sources: 'Las respuestas se elaboran <strong>exclusivamente</strong> con información de conjuntos de datos públicos sobre cooperación para el desarrollo y recursos humanitarios de la Iniciativa Internacional para la Transparencia de la Ayuda (IATI).'
     verification: 'Cada respuesta es precisa, transparente y verificable; se genera procesando archivos oficiales, nunca con el conocimiento propio de la IA. <a href="how-to">Cómo funciona &nearr;</a>'
   invitation: ¡Probalo!
   # Placeholder dentro del campo de búsqueda vacío.
-  placeholder: Preguntale lo que quieras a IATI...
+  placeholder: Preguntale lo que quieras a los datos...
   # Texto del botón de enviar.
   ask: Enviar
 
