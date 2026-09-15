@@ -44,7 +44,7 @@ resourcesDrawer:
 # Pantalla de inicio (antes de la primera pregunta).
 landing:
   # Título principal. Cortó, accionable.
-  title: Consulte los datos de la Ayuda Internacional.
+  title: Consulte los Datos Abiertos
   # Texto introductorio debajo del título. Los enlaces HTML son intencionales.
   intro:
     prototype: 'Esta interfaz de chat es un prototipo público de un <strong>sistema de IA trazable</strong> desarrollado por Open Knowledge Foundation (OKFN). <a href="about">Acerca de &nearr;</a>'

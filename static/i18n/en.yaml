@@ -57,7 +57,7 @@ resourcesDrawer:
 # Landing page — what users see before they ask their first question.
 landing:
   # Big hero headline. Keep it short and action-oriented.
-  title: Ask the International Aid Data
+  title: Ask the Open Data
   # Introductory copy under the headline. HTML links are intentional.
   intro:
     prototype: 'This chat interface is a public prototype of a <strong>traceable AI system</strong> developed by the Open Knowledge Foundation (OKFN). <a href="about">About &nearr;</a>'
