@@ -322,7 +322,11 @@ def sse_event(event, data):
 @app.route("/")
 def index():
     """Serve the chat HTML page."""
-    return render_template("index.html", show_catalog_menu=True)
+    return render_template(
+        "index.html",
+        show_catalog_menu=True,
+        dataset_scope=settings.DATASET_SCOPE,
+    )
 
 
 @app.route("/chat", methods=["POST"])

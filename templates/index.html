@@ -11,28 +11,6 @@
 
 {% include "partials/header.html" %}
 
-<aside id="tools-drawer" class="tools-drawer" aria-hidden="true">
-  <div class="tools-drawer-header">
-    <h2 data-i18n="drawer.title">Available tools</h2>
-    <button id="tools-close" class="tools-close" type="button" aria-label="Close tools drawer">&times;</button>
-  </div>
-  <div id="tools-content" class="tools-content">
-    <p class="tools-loading" data-i18n="drawer.loading">Loading tools…</p>
-  </div>
-</aside>
-<div id="tools-overlay" class="tools-overlay" hidden></div>
-
-<aside id="resources-drawer" class="tools-drawer" aria-hidden="true">
-  <div class="tools-drawer-header">
-    <h2 data-i18n="resourcesDrawer.title">Reference documents</h2>
-    <button id="resources-close" class="tools-close" type="button" aria-label="Close resources drawer">&times;</button>
-  </div>
-  <div id="resources-content" class="tools-content">
-    <p class="tools-loading" data-i18n="resourcesDrawer.loading">Loading resources…</p>
-  </div>
-</aside>
-<div id="resources-overlay" class="tools-overlay" hidden></div>
-
 <!-- Landing view: shown until the first message is sent -->
 <section id="landing">
   <div class="landing-hero">
@@ -57,6 +35,10 @@
         placeholder="Ask a question about open data..."></textarea>
       <button type="submit" class="landing-search-btn" data-i18n="landing.ask">Submit</button>
     </form>
+    <p class="dataset-scope">
+      <span class="dataset-scope-label">Dataset scope</span>
+      <span>{{ dataset_scope }}</span>
+    </p>
   </div>
 
   <section id="landing-plugins" class="landing-plugins" aria-live="polite">
