@@ -51,7 +51,7 @@ landing:
     verification: 'Cada resposta é precisa, transparente e verificável, gerada pelo processamento de arquivos oficiais, nunca pelo conhecimento próprio da IA. <a href="how-to">Como funciona &nearr;</a>'
   invitation: Experimente!
   # Placeholder dentro do campo de busca vazio.
-  placeholder: Pergunte qualquer coisa à IATI...
+  placeholder: Pergunte qualquer coisa à os dados...
   # Texto do botão de envio.
   ask: Enviar
 
