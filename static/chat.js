@@ -878,7 +878,7 @@ function renderLandingPlugins(catalog) {
 
       const chips = document.createElement("div");
       chips.className = "plugin-card-chips";
-      samples.slice(0, 5).forEach((q) => {
+      samples.forEach((q) => {
         const chip = document.createElement("button");
         chip.type = "button";
         chip.className = "chip";
