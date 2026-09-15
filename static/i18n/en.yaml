@@ -23,10 +23,7 @@ siteFooter:
 
 # Top navigation bar shown on every page.
 nav:
-  # Button that opens the right-side tools drawer.
-  tools: Tools
-  # Button that opens the right-side resources drawer (PDFs, docs, …).
-  resources: Resources
+  chat: Chat
   howTo: How it works
   technicalInfo: Technical info
   about: About

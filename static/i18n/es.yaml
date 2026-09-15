@@ -13,10 +13,7 @@ siteFooter:
 
 # Barra de navegación superior, presente en todas las páginas.
 nav:
-  # Botón que abre el panel lateral con las herramientas.
-  tools: Herramientas
-  # Botón que abre el panel lateral con los documentos de referencia.
-  resources: Documentos
+  chat: Chat
   howTo: Cómo funciona
   technicalInfo: Información técnica
   about: Acerca de
