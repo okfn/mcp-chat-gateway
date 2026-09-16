@@ -472,7 +472,11 @@ def how_to():
         logger.error(f"Failed to fetch MCP tools for about page: {e}")
         mcp_tools = []
 
-    return render_template("how_to.html", tools=mcp_tools)
+    return render_template(
+            "how_to.html",
+            tools=mcp_tools,
+            dataset_scope=settings.DATASET_SCOPE
+            )
 
 
 @app.route("/tools")
