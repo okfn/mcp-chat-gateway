@@ -15,20 +15,23 @@
   <section class="about-section">
     <h1>How it works</h1>
     <h2>Traceable AI Answers in Three Steps</h2>
-    <p>This prototype is designed to explore official International Aid Transparency Initiative (IATI) data. Because source verifiability and data provenance are our top priorities, this AI operates under strict rules: it cannot use its general training data, and it is not allowed to guess.</p>
-    <p>Here is how you can explore the data:</p>
+    <p>This prototype is designed to explore open data using natural language and a chat interface. Because source verifiability and data provenance are our top priorities, this AI operates under strict rules: it cannot use its general training data, and it is not allowed to guess.</p>
+    <p>The data for this demo is:</p>
+    <p>
+      <span id="dataset-scope-text"></span>
+    </p>
+    <h2>Here is how you can explore the data:</h2>
     <ol class="how-to-steps">
       <li>
-        <h2>Ask your question in plain language</h2>
-        <p>Simply type what you want to know into the search bar. You don’t need to know complex data jargon.</p>
-        <p>Try asking: <em>“What does this IATI file contain?”</em> or <em>“What are the top 5 activities by funding amount?”</em></p>
+        <h4>Ask your question in plain language</h4>
+        <p>Simply type what you want to know into the search bar. You don’t need to know complex data jargon. There are built in examples in the home page.</p>
       </li>
       <li>
-        <h2>The AI fetches the official records</h2>
-        <p>Behind the scenes, the AI translates your question and searches directly through the official IATI datasets. If the answer exists in the data, it will pull the exact information. If the data does not contain the answer, the AI will honestly tell you: <em>“We don't have any internal tool to answer your question”</em> rather than making something up.</p>
+        <h4>The AI fetches the official records</h4>
+        <p>Behind the scenes, the AI translates your question and searches directly through the official datasets. If the answer exists in the data, it will pull the exact information. If the data does not contain the answer, the AI will honestly tell you: <em>“We don't have any internal tool to answer your question”</em> rather than making something up.</p>
       </li>
       <li>
-        <h2>Explore your verified results</h2>
+        <h4>Explore your verified results</h4>
         <p>When the AI replies, it provides a clear answer alongside the underlying data. Depending on your question, you might see:</p>
         <ul>
           <li><strong>Tables:</strong> Raw data pulled directly from the source.</li>
@@ -68,6 +71,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <script src="static/i18n.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+document.getElementById('dataset-scope-text').innerHTML = marked.parse("{{dataset_scope}}");
+</script>
 </body>
 </html>
